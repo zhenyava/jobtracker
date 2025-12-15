@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { signOutAction } from '@/actions/auth'
+import { Button } from '@/components/ui/button'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -14,7 +16,15 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <form action={signOutAction}>
+          <Button variant="outline" type="submit">
+            Sign Out
+          </Button>
+        </form>
+      </div>
+      
       <p className="mt-4 text-gray-600">
         Welcome back, <span className="font-semibold">{user.email}</span>!
       </p>
