@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Job Tracker Extension",
+  "version": "1.0.0",
+  "description": "Helper extension for Job Tracker SaaS",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "vite.svg"
+  },
+  "icons": {
+    "16": "vite.svg",
+    "48": "vite.svg",
+    "128": "vite.svg"
+  },
+  "host_permissions": [
+    "http://localhost:3000/*"
+  ],
+  "permissions": [
+    "cookies"
+  ]
+}
