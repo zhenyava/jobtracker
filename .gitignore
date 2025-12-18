@@ -56,3 +56,6 @@ extension/*.tsbuildinfo
 .vscode/
 *.swp
 *.swo
+
+# --- SUPABASE ---
+supabase/.temp/

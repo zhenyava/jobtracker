@@ -112,11 +112,14 @@ We are building a "Serverless Modular Monolith" (The Indie Hacker Stack).
 | :--- | :--- | :--- | :--- |
 | `GET` | `/api/auth/me` | Checks if user is logged in via cookies. Returns `{ authenticated: boolean, user: User \| null }`. Supports CORS for extension. | No (returns false) |
 | `GET` | `/auth/callback` | OAuth callback handler. Exchanges code for session and redirects. | No |
+| `GET` | `/api/profiles` | Returns list of job profiles for the current user. Used by Extension. | Yes (Cookie) |
 
 ### Server Actions (`src/actions/`)
 | Function Name | Description | Inputs | Returns |
 | :--- | :--- | :--- | :--- |
 | `signOutAction` | Signs out the user and redirects to `/login`. | `void` | `void` (Redirects) |
+| `createJobProfile` | Creates a new job profile. Validates name length. | `name: string` | `{ success, data: Profile }` |
+| `getJobProfiles` | Fetches all profiles for the current user, ordered by newest. | `void` | `{ success, data: Profile[] }` |
 
 ---
 *If the user asks for code, provide full, copy-pasteable files. Do not be lazy.*
