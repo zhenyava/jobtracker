@@ -39,7 +39,7 @@ We are building a "Serverless Modular Monolith" (The Indie Hacker Stack).
 
 ### Database (Supabase)
 * **RLS:** Row Level Security must be enabled on ALL tables.
-* **Types:** Use generated Supabase types (`Database` interface). Do not manually type DB responses if possible.
+* **Types:** Use generated Supabase types (`Database` interface). Do not manually type DB responses if possible. Do not change the `src/types/supabase.ts` file manually. Instead, use `npm run gen-types` command.
 
 ## 4. CODING STANDARDS
 * **Naming:** logical English names (camelCase for variables, PascalCase for components).
@@ -71,7 +71,7 @@ We are building a "Serverless Modular Monolith" (The Indie Hacker Stack).
 * **Command:** `npm test`.
 * **Scope:** Unit tests for UI components (`.test.tsx`), Integration tests for API Routes (`route.test.ts`), Unit tests for Server Actions (`.test.ts`).
 
-## 6. GEMINI ADDED MEMORIES (OPERATIONAL RULES)
+## 6. OPERATIONAL RULES
 
 *   **Operational Rule:** Do not start new development work until the user has explicitly answered all pending clarifying questions and approved the plan.
 *   **Operational Rule: Feature Development Protocol (STRICT).**
@@ -84,6 +84,7 @@ We are building a "Serverless Modular Monolith" (The Indie Hacker Stack).
         *   **Test Plan:** List of Unit/Integration tests.
     3.  **Approval:** Wait for explicit user approval of the Spec.
     4.  **Execution:** Only then proceed to coding (following TDD).
+    5.  **Retrospective:** After commmit do retrospective identify the mistakes and build actions points to fix them in future.
 
 *   **Operational Rule: TDD/BDD First.**
     Tests are a **MANDATORY** pre-commit requirement.
