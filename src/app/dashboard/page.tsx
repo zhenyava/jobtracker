@@ -25,7 +25,7 @@ export default async function DashboardPage({
         <div className="space-y-2">
           <h2 className="text-2xl font-bold tracking-tight">You have no profiles yet</h2>
           <p className="text-muted-foreground max-w-sm">
-            Create a profile (e.g., "Senior React Developer") to start tracking your job applications.
+            Create a profile (e.g., &#39;Senior React Developer&#39;) to start tracking your job applications.
           </p>
         </div>
         <CreateProfileDialog 

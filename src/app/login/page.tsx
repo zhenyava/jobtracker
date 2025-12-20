@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
-import { Chrome } from 'lucide-react' // Using Chrome icon as a placeholder for Google
 import { useState } from 'react'
 
 export default function LoginPage() {
