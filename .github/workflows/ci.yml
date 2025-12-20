@@ -49,9 +49,14 @@ jobs:
       - name: Start Supabase
         run: npx supabase start
 
-      - name: Export Supabase env
+      - name: Capture Supabase env
+        # Why split? Variables written to $GITHUB_ENV become available only in subsequent steps.
+        # We first dump Supabase env (API_URL/ANON_KEY/SERVICE_ROLE_KEY) here, then map them in the next step.
         run: |
           npx supabase status --output env >> $GITHUB_ENV
+
+      - name: Map Supabase env for app
+        run: |
           echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> $GITHUB_ENV
           echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> $GITHUB_ENV
