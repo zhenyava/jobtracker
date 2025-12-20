@@ -55,7 +55,8 @@ jobs:
         # Why split? Variables written to $GITHUB_ENV become available only in subsequent steps.
         # We first dump Supabase env (API_URL/ANON_KEY/SERVICE_ROLE_KEY) here, then map them in the next step.
         run: |
-          npx supabase status --output env >> $GITHUB_ENV
+          # Supabase CLI outputs quoted env; strip quotes so URLs/keys are clean.
+          npx supabase status --output env | tr -d '"' >> $GITHUB_ENV
 
       - name: E2E tests
         env:
@@ -64,6 +65,6 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ env.ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ env.SERVICE_ROLE_KEY }}
           E2E_TESTING: true
-          TEST_USER_EMAIL: ${{ env.TEST_USER_EMAIL }}
-          TEST_USER_PASSWORD: ${{ env.TEST_USER_PASSWORD }}
+          TEST_USER_EMAIL: test@example.com
+          TEST_USER_PASSWORD: password123
         run: npm run test:e2e
