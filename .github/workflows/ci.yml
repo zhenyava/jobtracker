@@ -65,4 +65,4 @@ jobs:
       - name: E2E tests
         env:
           NODE_ENV: test
-        run: npm run test:e2e:all
+        run: npm run test:e2e
