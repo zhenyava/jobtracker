@@ -13,8 +13,16 @@
 # testing
 /coverage
 
-# next.js
-/.next/
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright-env-screenshots/
+playwright.env
+.env.test
+
+# Next.js
+.next/
 /out/
 
 # production
@@ -59,3 +67,4 @@ extension/*.tsbuildinfo
 
 # --- SUPABASE ---
 supabase/.temp/
+supabase/.branches/

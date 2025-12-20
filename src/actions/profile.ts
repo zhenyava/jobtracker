@@ -11,7 +11,10 @@ const createProfileSchema = z.object({
 export async function createJobProfile(name: string) {
   const result = createProfileSchema.safeParse({ name })
   if (!result.success) {
-    return { success: false, error: result.error.errors[0]?.message || 'Invalid input' }
+    return {
+      success: false,
+      error: result.error?.errors?.[0]?.message || 'Invalid input',
+    }
   }
 
   const supabase = await createClient()

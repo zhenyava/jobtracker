@@ -49,6 +49,17 @@ To load it into Chrome:
 3. Click "Load unpacked".
 4. Select the `extension/dist` folder.
 
+## End-to-End Tests (Playwright)
+
+1. Start local Supabase in Docker: `npx supabase start`
+2. Copy env template: `cp playwright.env.example playwright.env` (adjust if your local Supabase ports/keys differ)
+3. Run tests: `npx playwright test`
+
+Notes:
+- Tests set `E2E_TESTING=true` and hit the local Supabase instance (not the cloud project).
+- A test helper route at `/api/test-support/auth` exists only when `E2E_TESTING=true`; it seeds/cleans a test user and issues the Supabase auth cookie.
+- ESLint blocks `process.env.E2E_TESTING` outside `tests/**` and `src/app/api/test-support/**` to avoid test-only code leaking into the app.
+
 ## Project Structure
 
 - `src/` - Main Next.js application code.
