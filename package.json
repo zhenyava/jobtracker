@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "tests": "npm run test:unit && npm run test:e2e",
+    "setup:e2e": "npx playwright install --with-deps",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:e2e": "npx playwright test",
