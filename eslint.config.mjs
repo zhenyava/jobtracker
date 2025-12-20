@@ -8,7 +8,7 @@ const eslintConfig = defineConfig([
   {
     name: "jobtracker/no-e2e-flag-in-app-code",
     files: ["**/*.{ts,tsx,js,jsx}"],
-    excludedFiles: ["tests/**", "src/app/api/test-support/**"],
+    ignores: ["tests/**", "src/app/api/test-support/**", "playwright.config.*"],
     rules: {
       "no-restricted-syntax": [
         "error",
@@ -28,6 +28,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "extension/**",
+    "playwright-report/**",
+    "test-results/**",
   ]),
 ]);
 
