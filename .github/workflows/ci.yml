@@ -44,7 +44,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm run setup:e2e
 
       - name: Start Supabase
         run: npx supabase start
@@ -55,19 +57,13 @@ jobs:
         run: |
           npx supabase status --output env >> $GITHUB_ENV
 
-      - name: Map Supabase env for app
-        run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> $GITHUB_ENV
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> $GITHUB_ENV
-          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> $GITHUB_ENV
-          echo "E2E_TESTING=true" >> $GITHUB_ENV
-          echo "TEST_USER_EMAIL=${TEST_USER_EMAIL:-test@example.com}" >> $GITHUB_ENV
-          echo "TEST_USER_PASSWORD=${TEST_USER_PASSWORD:-password123}" >> $GITHUB_ENV
-
-      - name: Install Playwright browsers
-        run: npm run setup:e2e
-
       - name: E2E tests
         env:
           NODE_ENV: test
+          NEXT_PUBLIC_SUPABASE_URL: ${{ env.API_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ env.ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SERVICE_ROLE_KEY }}
+          E2E_TESTING: true
+          TEST_USER_EMAIL: ${{ env.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ env.TEST_USER_PASSWORD }}
         run: npm run test:e2e
