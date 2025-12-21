@@ -16,6 +16,9 @@
     "http://localhost:3000/*"
   ],
   "permissions": [
-    "cookies"
+    "cookies",
+    "scripting",
+    "activeTab",
+    "storage"
   ]
 }
