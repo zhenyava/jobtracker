@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Readability } from '@mozilla/readability'
 
 const API_URL = 'http://localhost:3000'
@@ -39,31 +39,25 @@ function App() {
   const [jobData, setJobData] = useState<JobData | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  useEffect(() => {
-    checkAuth()
-    loadPersistedState()
+  const fetchProfiles = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/profiles`, {
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to fetch profiles')
+      const data = await res.json()
+      setProfiles(data)
+      if (data.length > 0) {
+        const saved = localStorage.getItem('lastProfileId')
+        const found = data.find((p: Profile) => p.id === saved)
+        setSelectedProfileId(found ? found.id : data[0].id)
+      }
+    } catch (error) {
+      console.error('Profile fetch error:', error)
+    }
   }, [])
 
-  const loadPersistedState = async () => {
-    const result = await chrome.storage.local.get(['jobAnalysisStatus', 'jobAnalysisData'])
-    if (result.jobAnalysisStatus) {
-      setStatus(result.jobAnalysisStatus as AnalysisStatus)
-    }
-    if (result.jobAnalysisData) {
-      setJobData(result.jobAnalysisData as JobData)
-    }
-  }
-
-  const persistState = (newStatus: AnalysisStatus, newData: JobData | null) => {
-    setStatus(newStatus)
-    setJobData(newData)
-    chrome.storage.local.set({
-      jobAnalysisStatus: newStatus,
-      jobAnalysisData: newData
-    })
-  }
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       setAuthLoading(true)
       const res = await fetch(`${API_URL}/api/auth/me`, {
@@ -85,24 +79,30 @@ function App() {
     } finally {
       setAuthLoading(false)
     }
+  }, [fetchProfiles])
+
+  useEffect(() => {
+    checkAuth()
+    loadPersistedState()
+  }, [checkAuth])
+
+  const loadPersistedState = async () => {
+    const result = await chrome.storage.local.get(['jobAnalysisStatus', 'jobAnalysisData'])
+    if (result.jobAnalysisStatus) {
+      setStatus(result.jobAnalysisStatus as AnalysisStatus)
+    }
+    if (result.jobAnalysisData) {
+      setJobData(result.jobAnalysisData as JobData)
+    }
   }
 
-  const fetchProfiles = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/profiles`, {
-        credentials: 'include',
-      })
-      if (!res.ok) throw new Error('Failed to fetch profiles')
-      const data = await res.json()
-      setProfiles(data)
-      if (data.length > 0) {
-        const saved = localStorage.getItem('lastProfileId')
-        const found = data.find((p: Profile) => p.id === saved)
-        setSelectedProfileId(found ? found.id : data[0].id)
-      }
-    } catch (error) {
-      console.error('Profile fetch error:', error)
-    }
+  const persistState = (newStatus: AnalysisStatus, newData: JobData | null) => {
+    setStatus(newStatus)
+    setJobData(newData)
+    chrome.storage.local.set({
+      jobAnalysisStatus: newStatus,
+      jobAnalysisData: newData
+    })
   }
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -156,9 +156,10 @@ function App() {
       
       persistState('review', finalData)
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Analysis Error:', err)
-      setErrorMsg(err.message || 'Failed to analyze')
+      const message = err instanceof Error ? err.message : 'Failed to analyze'
+      setErrorMsg(message)
       persistState('idle', null)
     }
   }
