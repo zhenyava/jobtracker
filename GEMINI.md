@@ -120,6 +120,7 @@ You have to follow instructions below step by step each time then you get reques
 | `GET` | `/api/auth/me` | Checks if user is logged in via cookies. Supports CORS for extension. | No (returns false) |
 | `GET` | `/auth/callback` | OAuth callback handler. Exchanges code for session. | No |
 | `GET` | `/api/profiles` | Returns list of job profiles for the current user. | Yes (Cookie) |
+| `POST` | `/api/analyze-job` | Analyzes job description text using LLM. Returns structured JSON. | Yes (Cookie) |
 
 ### Server Actions (`src/actions/`)
 | Function Name | Description | Inputs | Returns |
