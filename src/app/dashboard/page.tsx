@@ -24,6 +24,7 @@ export default async function DashboardPage({
   const resolvedSearchParams = await searchParams
   
   // 1. Fetch Profiles first
+<<<<<<< HEAD
   const profilesRes = await getJobProfiles();
   if (!profilesRes.success) {
     // You should render a proper error state here to inform the user.
@@ -31,8 +32,23 @@ export default async function DashboardPage({
     return <div>Error: Could not load job profiles. Please try again later.</div>;
   }
   const profiles = profilesRes.data || [];
+=======
+  const profilesRes = await getJobProfiles()
+>>>>>>> 9884b86 (feat(dashboard): add error handling for data fetching)
   
-  const hasProfiles = profiles && profiles.length > 0
+  if (!profilesRes.success) {
+    return (
+      <div className="p-8">
+        <div className="p-4 border border-red-200 bg-red-50 text-red-700 rounded-lg">
+          <h2 className="font-bold">Error loading profiles</h2>
+          <p className="text-sm">{profilesRes.error || 'Please try again later.'}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const profiles = profilesRes.data || []
+  const hasProfiles = profiles.length > 0
   const profileId = resolvedSearchParams.profileId
 
   // Zero State
@@ -62,8 +78,13 @@ export default async function DashboardPage({
 
   // 2. Fetch Applications for active profile
   const applicationsRes = await getApplications(profileId)
-  const applications = applicationsRes.data || []
+  
+  if (!applicationsRes.success) {
+    console.error('Failed to load applications:', applicationsRes.error)
+    // We'll show an error banner but keep the page layout if possible
+  }
 
+  const applications = applicationsRes.data || []
   const activeProfile = profiles.find(p => p.id === profileId)
 
   return (
@@ -72,6 +93,12 @@ export default async function DashboardPage({
         <h1 className="text-3xl font-bold">{activeProfile?.name || 'Dashboard'}</h1>
         <p className="text-muted-foreground">Manage your applications for this profile.</p>
       </header>
+
+      {!applicationsRes.success && (
+        <div className="p-4 border border-red-200 bg-red-50 text-red-700 rounded-lg">
+          <p className="text-sm font-medium">Failed to load applications. Showing cached or empty data.</p>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
