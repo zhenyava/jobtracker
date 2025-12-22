@@ -211,7 +211,9 @@ function App() {
 
       if (!res.ok) {
         const errData = await res.json()
-        throw new Error(errData.error || 'Failed to save application')
+        const detailMessage = errData.details?.map((d: { message: string }) => d.message).join(', ')
+        const errorMessage = errData.error || 'Failed to save application'
+        throw new Error(detailMessage ? `${errorMessage}: ${detailMessage}` : errorMessage)
       }
 
       persistState('success', null)
