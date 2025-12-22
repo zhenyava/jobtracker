@@ -29,11 +29,11 @@ function App() {
   const [authLoading, setAuthLoading] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
   const [user, setUser] = useState<User | null>(null)
-  
+
   // Profile State
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [selectedProfileId, setSelectedProfileId] = useState<string>('')
-  
+
   // Analysis State
   const [status, setStatus] = useState<AnalysisStatus>('idle')
   const [jobData, setJobData] = useState<JobData | null>(null)
@@ -63,9 +63,9 @@ function App() {
       const res = await fetch(`${API_URL}/api/auth/me`, {
         credentials: 'include',
       })
-      
+
       if (!res.ok) throw new Error('Network response was not ok')
-      
+
       const data = await res.json()
       setAuthenticated(data.authenticated)
       setUser(data.user)
@@ -86,19 +86,18 @@ function App() {
     loadPersistedState()
   }, [checkAuth])
 
-  const loadPersistedState = async () => {
-    const result = await chrome.storage.local.get(['jobAnalysisStatus', 'jobAnalysisData'])
-    if (result.jobAnalysisStatus) {
-    const validStatuses: AnalysisStatus[] = ['idle', 'analyzing', 'review', 'error'];
-    if (result.jobAnalysisStatus && validStatuses.includes(result.jobAnalysisStatus as AnalysisStatus)) {
-      setStatus(result.jobAnalysisStatus as AnalysisStatus);
+    const loadPersistedState = async () => {
+      const result = await chrome.storage.local.get(['jobAnalysisStatus', 'jobAnalysisData'])
+      if (result.jobAnalysisStatus) {
+        const validStatuses: AnalysisStatus[] = ['idle', 'analyzing', 'review', 'error']
+        if (validStatuses.includes(result.jobAnalysisStatus as AnalysisStatus)) {
+          setStatus(result.jobAnalysisStatus as AnalysisStatus)
+        }
+      }
+      if (result.jobAnalysisData) {
+        setJobData(result.jobAnalysisData as JobData)
+      }
     }
-    }
-    if (result.jobAnalysisData) {
-      setJobData(result.jobAnalysisData as JobData)
-    }
-  }
-
   const persistState = (newStatus: AnalysisStatus, newData: JobData | null) => {
     setStatus(newStatus)
     setJobData(newData)
@@ -141,7 +140,7 @@ function App() {
       const doc = new DOMParser().parseFromString(html, "text/html")
       const reader = new Readability(doc)
       const article = reader.parse()
-      
+
       const cleanText = article?.textContent || doc.body.innerText
 
       // 4. Send to LLM
@@ -164,9 +163,9 @@ function App() {
 
       const apiData = await res.json()
       const finalData: JobData = { ...apiData, url: tabUrl }
-      
+
       persistState('review', finalData)
-      
+
     } catch (err: unknown) {
       console.error('Analysis Error:', err)
       const message = err instanceof Error ? err.message : 'Failed to analyze'
@@ -203,15 +202,15 @@ function App() {
           <h1 className="text-lg font-bold text-blue-600">Job Tracker</h1>
         </header>
         <main className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-            <p className="text-sm text-gray-600">
-              Please sign in to track jobs.
-            </p>
-            <button
-              onClick={handleLogin}
-              className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              Sign In
-            </button>
+          <p className="text-sm text-gray-600">
+            Please sign in to track jobs.
+          </p>
+          <button
+            onClick={handleLogin}
+            className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Sign In
+          </button>
         </main>
       </div>
     )
@@ -230,18 +229,18 @@ function App() {
       <main className="flex flex-1 flex-col gap-4">
         {/* Profile Selector */}
         <div className="w-full">
-            <label className="text-xs font-semibold text-gray-700 ml-1">Profile</label>
-            <select 
-              value={selectedProfileId} 
-              onChange={handleProfileChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 py-2 pl-3 pr-8 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-            >
-              {profiles.map(profile => (
-                <option key={profile.id} value={profile.id}>
-                  {profile.name}
-                </option>
-              ))}
-            </select>
+          <label className="text-xs font-semibold text-gray-700 ml-1">Profile</label>
+          <select
+            value={selectedProfileId}
+            onChange={handleProfileChange}
+            className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 py-2 pl-3 pr-8 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+          >
+            {profiles.map(profile => (
+              <option key={profile.id} value={profile.id}>
+                {profile.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Status: Idle / Error */}
@@ -264,36 +263,36 @@ function App() {
 
         {/* Status: Analyzing */}
         {status === 'analyzing' && (
-           <div className="flex flex-1 flex-col items-center justify-center gap-3">
-             <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-             <p className="text-sm text-gray-600">Analyzing job details...</p>
-             <p className="text-xs text-gray-400">You can close this popup.</p>
-           </div>
+          <div className="flex flex-1 flex-col items-center justify-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+            <p className="text-sm text-gray-600">Analyzing job details...</p>
+            <p className="text-xs text-gray-400">You can close this popup.</p>
+          </div>
         )}
 
         {/* Status: Review */}
         {status === 'review' && jobData && (
           <div className="flex flex-col gap-3">
             <h2 className="text-sm font-bold text-gray-800 border-b pb-1">Review Details</h2>
-            
+
             <div className="grid gap-2">
-              <Input label="URL" value={jobData.url} onChange={v => setJobData({...jobData, url: v})} />
-              <Input label="Position" value={jobData.position} onChange={v => setJobData({...jobData, position: v})} />
-              <Input label="Company" value={jobData.company} onChange={v => setJobData({...jobData, company: v})} />
+              <Input label="URL" value={jobData.url} onChange={v => setJobData({ ...jobData, url: v })} />
+              <Input label="Position" value={jobData.position} onChange={v => setJobData({ ...jobData, position: v })} />
+              <Input label="Company" value={jobData.company} onChange={v => setJobData({ ...jobData, company: v })} />
               <div className="grid grid-cols-2 gap-2">
-                <Input label="Location" value={jobData.country} onChange={v => setJobData({...jobData, country: v})} />
-                <Input label="Format" value={jobData.format} onChange={v => setJobData({...jobData, format: v})} />
+                <Input label="Location" value={jobData.country} onChange={v => setJobData({ ...jobData, country: v })} />
+                <Input label="Format" value={jobData.format} onChange={v => setJobData({ ...jobData, format: v })} />
               </div>
-               <Input label="Industry" value={jobData.industry} onChange={v => setJobData({...jobData, industry: v})} />
-               
-               <div>
-                 <label className="text-xs font-semibold text-gray-700">Description Summary</label>
-                 <textarea 
-                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 text-xs h-24"
-                    value={jobData.description}
-                    onChange={(e) => setJobData({...jobData, description: e.target.value})}
-                 />
-               </div>
+              <Input label="Industry" value={jobData.industry} onChange={v => setJobData({ ...jobData, industry: v })} />
+
+              <div>
+                <label className="text-xs font-semibold text-gray-700">Description Summary</label>
+                <textarea
+                  className="mt-1 block w-full rounded-md border border-gray-300 p-2 text-xs h-24"
+                  value={jobData.description}
+                  onChange={(e) => setJobData({ ...jobData, description: e.target.value })}
+                />
+              </div>
             </div>
 
             <div className="mt-2 flex gap-2">
@@ -321,7 +320,7 @@ function Input({ label, value, onChange }: { label: string, value: string, onCha
   return (
     <div>
       <label className="text-xs font-semibold text-gray-700">{label}</label>
-      <input 
+      <input
         type="text"
         className="mt-1 block w-full rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         value={value}
