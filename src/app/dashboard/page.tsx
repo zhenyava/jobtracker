@@ -34,14 +34,9 @@ export default async function DashboardPage({
 }) {
   const resolvedSearchParams = await searchParams
   
-  // Parallel fetching
-  const [profilesRes, applicationsRes] = await Promise.all([
-    getJobProfiles(),
-    getApplications()
-  ])
-  
-  const profiles = profilesRes.data
-  const applications = applicationsRes.data || []
+  // 1. Fetch Profiles first
+  const profilesRes = await getJobProfiles()
+  const profiles = profilesRes.data || []
   
   const hasProfiles = profiles && profiles.length > 0
   const profileId = resolvedSearchParams.profileId
@@ -71,6 +66,10 @@ export default async function DashboardPage({
     redirect(`/dashboard?profileId=${profiles[0].id}`)
   }
 
+  // 2. Fetch Applications for active profile
+  const applicationsRes = await getApplications(profileId)
+  const applications = applicationsRes.data || []
+
   const activeProfile = profiles.find(p => p.id === profileId)
 
   return (
@@ -94,7 +93,7 @@ export default async function DashboardPage({
         
         {applications.length === 0 ? (
           <div className="text-center py-12 border rounded-xl bg-muted/10 border-dashed">
-            <p className="text-muted-foreground">No applications yet. Use the browser extension to add one.</p>
+            <p className="text-muted-foreground">No applications for this profile yet.</p>
           </div>
         ) : (
           <div className="rounded-md border bg-card">

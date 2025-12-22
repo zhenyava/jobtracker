@@ -191,6 +191,7 @@ function App() {
       }
 
       const payload = {
+        profileId: selectedProfileId,
         companyName: jobData.company,
         industry: jobData.industry,
         jobUrl: jobData.url,

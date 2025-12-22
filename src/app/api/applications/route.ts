@@ -51,12 +51,30 @@ export async function POST(request: Request) {
       return response
     }
 
-    const { companyName, industry, jobUrl, description, location, workType } = validationResult.data
+    const { companyName, industry, jobUrl, description, location, workType, profileId } = validationResult.data
+
+    // Verify profile ownership
+    const { data: profile, error: profileError } = await supabase
+      .from('job_profiles' as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+      .select('id')
+      .eq('id', profileId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (profileError || !profile) {
+      const response = NextResponse.json(
+        { success: false, error: 'Invalid Profile ID' },
+        { status: 400 }
+      )
+      setCorsHeaders(response, origin)
+      return response
+    }
 
     const { data, error } = await supabase
       .from('job_applications' as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .insert({
         user_id: user.id,
+        profile_id: profileId,
         company_name: companyName,
         industry,
         job_url: jobUrl,
@@ -68,6 +86,7 @@ export async function POST(request: Request) {
       })
       .select()
       .single()
+
 
     if (error) {
       console.error('Error inserting application:', error)

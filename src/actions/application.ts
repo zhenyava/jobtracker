@@ -1,7 +1,6 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { z } from 'zod'
 
 // Temporary type definition until we generate DB types
 export interface JobApplication {
@@ -14,9 +13,10 @@ export interface JobApplication {
   location?: string
   industry?: string
   match_score?: number
+  profile_id: string
 }
 
-export async function getApplications(): Promise<{ success: boolean; data?: JobApplication[]; error?: string }> {
+export async function getApplications(profileId: string): Promise<{ success: boolean; data?: JobApplication[]; error?: string }> {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -25,11 +25,11 @@ export async function getApplications(): Promise<{ success: boolean; data?: JobA
       return { success: false, error: 'Unauthorized' }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await supabase
-      .from('job_applications' as any)
+      .from('job_applications' as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .select('*')
       .eq('user_id', user.id)
+      .eq('profile_id', profileId)
       .order('applied_at', { ascending: false })
 
     if (error) {
