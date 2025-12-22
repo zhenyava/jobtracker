@@ -22,7 +22,7 @@ interface JobData {
   position: string
 }
 
-type AnalysisStatus = 'idle' | 'analyzing' | 'review' | 'error'
+type AnalysisStatus = 'idle' | 'analyzing' | 'review' | 'success' | 'error'
 
 function App() {
   // Auth State
@@ -38,6 +38,7 @@ function App() {
   const [status, setStatus] = useState<AnalysisStatus>('idle')
   const [jobData, setJobData] = useState<JobData | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const fetchProfiles = useCallback(async () => {
     try {
@@ -89,7 +90,7 @@ function App() {
     const loadPersistedState = async () => {
       const result = await chrome.storage.local.get(['jobAnalysisStatus', 'jobAnalysisData'])
       if (result.jobAnalysisStatus) {
-        const validStatuses: AnalysisStatus[] = ['idle', 'analyzing', 'review', 'error']
+        const validStatuses: AnalysisStatus[] = ['idle', 'analyzing', 'review', 'success', 'error']
         if (validStatuses.includes(result.jobAnalysisStatus as AnalysisStatus)) {
           setStatus(result.jobAnalysisStatus as AnalysisStatus)
         }
@@ -174,10 +175,52 @@ function App() {
     }
   }
 
-  const handleApply = () => {
-    console.log('Applying with:', { profileId: selectedProfileId, ...jobData })
-    // Placeholder for DB insertion
-    alert('Application simulated! Check console.')
+  const handleApply = async () => {
+    if (!jobData) return
+    setIsSubmitting(true)
+    setErrorMsg(null)
+
+    try {
+      // Normalize workType
+      let workType = jobData.format.toLowerCase()
+      if (!['remote', 'office', 'hybrid'].includes(workType)) {
+        // Fallback or heuristic if LLM returns something else
+        if (workType.includes('remote')) workType = 'remote'
+        else if (workType.includes('hybrid')) workType = 'hybrid'
+        else workType = 'office'
+      }
+
+      const payload = {
+        companyName: jobData.company,
+        industry: jobData.industry,
+        jobUrl: jobData.url,
+        description: jobData.description,
+        location: jobData.country, // Mapping country -> location
+        workType: workType
+      }
+
+      const res = await fetch(`${API_URL}/api/applications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload),
+        credentials: 'include'
+      })
+
+      if (!res.ok) {
+        const errData = await res.json()
+        throw new Error(errData.error || 'Failed to save application')
+      }
+
+      persistState('success', null)
+    } catch (error: unknown) {
+      console.error('Apply error:', error)
+      const message = error instanceof Error ? error.message : 'Failed to save'
+      setErrorMsg(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleReset = () => {
@@ -228,6 +271,7 @@ function App() {
 
       <main className="flex flex-1 flex-col gap-4">
         {/* Profile Selector */}
+        {status !== 'success' && (
         <div className="w-full">
           <label className="text-xs font-semibold text-gray-700 ml-1">Profile</label>
           <select
@@ -242,6 +286,7 @@ function App() {
             ))}
           </select>
         </div>
+        )}
 
         {/* Status: Idle / Error */}
         {(status === 'idle' || status === 'error') && (
@@ -274,6 +319,12 @@ function App() {
         {status === 'review' && jobData && (
           <div className="flex flex-col gap-3">
             <h2 className="text-sm font-bold text-gray-800 border-b pb-1">Review Details</h2>
+            
+            {errorMsg && (
+              <div className="rounded bg-red-50 p-2 text-sm text-red-600 border border-red-200">
+                Error: {errorMsg}
+              </div>
+            )}
 
             <div className="grid gap-2">
               <Input label="URL" value={jobData.url} onChange={v => setJobData({ ...jobData, url: v })} />
@@ -298,17 +349,44 @@ function App() {
             <div className="mt-2 flex gap-2">
               <button
                 onClick={handleReset}
-                className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                disabled={isSubmitting}
+                className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
                 Back
               </button>
               <button
                 onClick={handleApply}
-                className="flex-1 rounded-md bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
+                disabled={isSubmitting}
+                className="flex-1 flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
               >
-                Apply
+                {isSubmitting ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                ) : (
+                  'Apply'
+                )}
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Status: Success */}
+        {status === 'success' && (
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 animate-in fade-in duration-300">
+             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <svg className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div className="text-center">
+              <h2 className="text-lg font-bold text-gray-900">Application Saved!</h2>
+              <p className="text-sm text-gray-600">The job has been added to your dashboard.</p>
+            </div>
+            <button
+              onClick={handleReset}
+              className="mt-4 w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Track Another Job
+            </button>
           </div>
         )}
       </main>
