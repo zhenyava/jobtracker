@@ -1,4 +1,4 @@
-import { getApplications, updateApplicationIndustry, updateApplicationStatus } from '@/actions/application'
+import { getApplications, updateApplication } from '@/actions/application'
 import { getJobProfiles } from '@/actions/profile'
 import { CreateProfileDialog } from '@/components/create-profile-dialog'
 import { EditableSelect } from '@/components/editable-select'
@@ -150,7 +150,7 @@ export default async function DashboardPage({
                         <EditableSelect 
                           initialValue={app.industry || ''}
                           options={INDUSTRY_OPTIONS}
-                          onUpdate={updateApplicationIndustry.bind(null, app.id)}
+                          onUpdate={(val) => updateApplication(app.id, { industry: val })}
                           placeholder="Select industry"
                         />
                       </td>
@@ -158,7 +158,7 @@ export default async function DashboardPage({
                         <EditableSelect 
                           initialValue={app.status}
                           options={STATUS_OPTIONS}
-                          onUpdate={updateApplicationStatus.bind(null, app.id)}
+                          onUpdate={(val) => updateApplication(app.id, { status: val })}
                           placeholder="Select status"
                           className="min-w-[140px]"
                         />

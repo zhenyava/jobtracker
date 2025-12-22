@@ -17,14 +17,22 @@ export interface JobApplication {
   profile_id: string
 }
 
+async function getAuthenticatedClient() {
+  const supabase = await createClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
+  
+  if (error || !user) {
+    return null
+  }
+  
+  return { supabase, user }
+}
+
 export async function getApplications(profileId: string): Promise<{ success: boolean; data?: JobApplication[]; error?: string }> {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return { success: false, error: 'Unauthorized' }
-    }
+    const auth = await getAuthenticatedClient()
+    if (!auth) return { success: false, error: 'Unauthorized' }
+    const { supabase, user } = auth
 
     const { data, error } = await supabase
       .from('job_applications' as any) // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -45,52 +53,21 @@ export async function getApplications(profileId: string): Promise<{ success: boo
   }
 }
 
-export async function updateApplicationStatus(id: string, status: string): Promise<{ success: boolean; error?: string }> {
+export async function updateApplication(id: string, updates: Partial<Pick<JobApplication, 'status' | 'industry'>>): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return { success: false, error: 'Unauthorized' }
-    }
+    const auth = await getAuthenticatedClient()
+    if (!auth) return { success: false, error: 'Unauthorized' }
+    const { supabase, user } = auth
 
     const { error } = await supabase
       .from('job_applications' as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .update({ status })
+      .update(updates)
       .eq('id', id)
       .eq('user_id', user.id)
 
     if (error) {
-      console.error('Error updating application status:', error)
-      return { success: false, error: 'Failed to update status' }
-    }
-
-    revalidatePath('/dashboard')
-    return { success: true }
-  } catch (error) {
-    console.error('Unexpected error:', error)
-    return { success: false, error: 'Internal Server Error' }
-  }
-}
-
-export async function updateApplicationIndustry(id: string, industry: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return { success: false, error: 'Unauthorized' }
-    }
-
-    const { error } = await supabase
-      .from('job_applications' as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .update({ industry })
-      .eq('id', id)
-      .eq('user_id', user.id)
-
-    if (error) {
-      console.error('Error updating application industry:', error)
-      return { success: false, error: 'Failed to update industry' }
+      console.error('Error updating application:', error)
+      return { success: false, error: 'Failed to update application' }
     }
 
     revalidatePath('/dashboard')
