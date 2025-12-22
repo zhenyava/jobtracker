@@ -4,7 +4,13 @@ import { NextResponse } from 'next/server'
 
 // Helper to set CORS headers
 function setCorsHeaders(response: NextResponse, origin: string | null) {
-  if (origin) {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173', // Vite dev server for extension
+    process.env.NEXT_PUBLIC_EXTENSION_ORIGIN,
+  ].filter(Boolean)
+
+  if (origin && allowedOrigins.includes(origin)) {
     response.headers.set('Access-Control-Allow-Origin', origin)
     response.headers.set('Access-Control-Allow-Credentials', 'true')
     response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS')
