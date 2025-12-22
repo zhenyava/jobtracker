@@ -24,17 +24,7 @@ export default async function DashboardPage({
   const resolvedSearchParams = await searchParams
   
   // 1. Fetch Profiles first
-<<<<<<< HEAD
-  const profilesRes = await getJobProfiles();
-  if (!profilesRes.success) {
-    // You should render a proper error state here to inform the user.
-    console.error('Failed to load profiles:', profilesRes.error);
-    return <div>Error: Could not load job profiles. Please try again later.</div>;
-  }
-  const profiles = profilesRes.data || [];
-=======
   const profilesRes = await getJobProfiles()
->>>>>>> 9884b86 (feat(dashboard): add error handling for data fetching)
   
   if (!profilesRes.success) {
     return (
