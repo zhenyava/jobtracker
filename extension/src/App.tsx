@@ -89,7 +89,10 @@ function App() {
   const loadPersistedState = async () => {
     const result = await chrome.storage.local.get(['jobAnalysisStatus', 'jobAnalysisData'])
     if (result.jobAnalysisStatus) {
-      setStatus(result.jobAnalysisStatus as AnalysisStatus)
+    const validStatuses: AnalysisStatus[] = ['idle', 'analyzing', 'review', 'error'];
+    if (result.jobAnalysisStatus && validStatuses.includes(result.jobAnalysisStatus as AnalysisStatus)) {
+      setStatus(result.jobAnalysisStatus as AnalysisStatus);
+    }
     }
     if (result.jobAnalysisData) {
       setJobData(result.jobAnalysisData as JobData)
