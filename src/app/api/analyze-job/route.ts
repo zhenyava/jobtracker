@@ -8,6 +8,15 @@ const analyzeJobSchema = z.object({
   text: z.string().min(1),
 })
 
+const jobOutputSchema = z.object({
+  description: z.string(),
+  company: z.string(),
+  country: z.string(),
+  industry: z.string(),
+  format: z.string(),
+  position: z.string(),
+})
+
 export async function POST(request: NextRequest) {
   try {
     // 1. Auth Check
@@ -51,9 +60,17 @@ export async function POST(request: NextRequest) {
       throw new Error('No content received from OpenAI')
     }
 
-    const data = JSON.parse(content)
+    const rawData = JSON.parse(content)
+    
+    // 4. Validate Output Structure
+    const validation = jobOutputSchema.safeParse(rawData)
+    
+    if (!validation.success) {
+      console.error('LLM Output Validation Failed:', validation.error)
+      throw new Error('LLM returned invalid data structure')
+    }
 
-    return NextResponse.json(data)
+    return NextResponse.json(validation.data)
   } catch (error) {
     console.error('Analyze Job Error:', error)
     return NextResponse.json(
