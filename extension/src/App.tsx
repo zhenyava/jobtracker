@@ -185,8 +185,8 @@ function App() {
       let workType = jobData.format.toLowerCase()
       if (!['remote', 'office', 'hybrid'].includes(workType)) {
         // Fallback or heuristic if LLM returns something else
-        if (workType.includes('remote')) workType = 'remote'
-        else if (workType.includes('hybrid')) workType = 'hybrid'
+        if (workType.includes('hybrid')) workType = 'hybrid'
+        else if (workType.includes('remote')) workType = 'remote'
         else workType = 'office'
       }
 

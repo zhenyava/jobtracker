@@ -23,7 +23,6 @@ interface EditableSelectProps {
   onUpdate: (newValue: string) => Promise<{ success: boolean; error?: string }>
   placeholder?: string
   className?: string
-  triggerWidth?: string
 }
 
 export function EditableSelect({ 

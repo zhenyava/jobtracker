@@ -1,28 +1,30 @@
 import { createClient } from '@/lib/supabase/server'
 import { createApplicationSchema } from '@/lib/validators/application'
+import { DEFAULT_STATUS } from '@/config/options'
 import { NextResponse } from 'next/server'
 
-// Helper to set CORS headers
-function setCorsHeaders(response: NextResponse, origin: string | null) {
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:5173', // Vite dev server for extension
-    process.env.NEXT_PUBLIC_EXTENSION_ORIGIN,
-  ].filter(Boolean)
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:5173', // Vite dev server for extension
+  process.env.NEXT_PUBLIC_EXTENSION_ORIGIN,
+].filter(Boolean)
 
-  if (origin && allowedOrigins.includes(origin)) {
+function createCorsResponse(body: any, init?: ResponseInit, origin?: string | null) {
+  const response = NextResponse.json(body, init)
+  
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
     response.headers.set('Access-Control-Allow-Origin', origin)
     response.headers.set('Access-Control-Allow-Credentials', 'true')
     response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS')
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   }
+  
+  return response
 }
 
 export async function OPTIONS(request: Request) {
   const origin = request.headers.get('origin')
-  const response = new NextResponse(null, { status: 204 })
-  setCorsHeaders(response, origin)
-  return response
+  return createCorsResponse(null, { status: 204 }, origin)
 }
 
 export async function POST(request: Request) {
@@ -33,28 +35,22 @@ export async function POST(request: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      const response = NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
-      setCorsHeaders(response, origin)
-      return response
+      return createCorsResponse({ success: false, error: 'Unauthorized' }, { status: 401 }, origin)
     }
 
     const body = await request.json()
     const validationResult = createApplicationSchema.safeParse(body)
 
     if (!validationResult.success) {
-      const response = NextResponse.json(
+      return createCorsResponse(
         { 
           success: false, 
           error: 'Validation Error', 
           details: validationResult.error.errors 
-        },
-        { status: 400 }
+        }, 
+        { status: 400 }, 
+        origin
       )
-      setCorsHeaders(response, origin)
-      return response
     }
 
     const { companyName, industry, jobUrl, description, location, workType, profileId } = validationResult.data
@@ -68,12 +64,7 @@ export async function POST(request: Request) {
       .single()
 
     if (profileError || !profile) {
-      const response = NextResponse.json(
-        { success: false, error: 'Invalid Profile ID' },
-        { status: 400 }
-      )
-      setCorsHeaders(response, origin)
-      return response
+      return createCorsResponse({ success: false, error: 'Invalid Profile ID' }, { status: 400 }, origin)
     }
 
     const { data, error } = await supabase
@@ -87,7 +78,7 @@ export async function POST(request: Request) {
         description,
         location,
         work_type: workType,
-        status: 'hr_screening', // Default status
+        status: DEFAULT_STATUS,
         applied_at: new Date().toISOString(),
       })
       .select()
@@ -96,25 +87,13 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('Error inserting application:', error)
-      const response = NextResponse.json(
-        { success: false, error: 'Database Error' },
-        { status: 500 }
-      )
-      setCorsHeaders(response, origin)
-      return response
+      return createCorsResponse({ success: false, error: 'Database Error' }, { status: 500 }, origin)
     }
 
-    const response = NextResponse.json({ success: true, data })
-    setCorsHeaders(response, origin)
-    return response
+    return createCorsResponse({ success: true, data }, { status: 200 }, origin)
 
   } catch (error) {
     console.error('Unexpected error:', error)
-    const response = NextResponse.json(
-      { success: false, error: 'Internal Server Error' },
-      { status: 500 }
-    )
-    setCorsHeaders(response, origin)
-    return response
+    return createCorsResponse({ success: false, error: 'Internal Server Error' }, { status: 500 }, origin)
   }
 }

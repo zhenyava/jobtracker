@@ -1,5 +1,7 @@
 import { SelectOption } from "@/components/editable-select"
 
+export const DEFAULT_STATUS = 'hr_screening'
+
 export const STATUS_OPTIONS: SelectOption[] = [
   { value: 'hr_screening', label: 'HR Screening', color: 'bg-blue-100 text-blue-700 border-blue-200 focus:bg-blue-100 focus:text-blue-700' },
   { value: 'offer', label: 'Offer', color: 'bg-green-100 text-green-700 border-green-200 focus:bg-green-100 focus:text-green-700' },
