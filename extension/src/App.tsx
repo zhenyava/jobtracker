@@ -148,11 +148,19 @@ function App() {
       const res = await fetch(`${API_URL}/api/analyze-job`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: cleanText.substring(0, MAX_TEXT_LENGTH) }),
+        body: JSON.stringify({ text: cleanText.substring(0, 15000) }), // Limit length
         credentials: 'include',
       })
 
-      if (!res.ok) throw new Error('Analysis failed')
+      if (!res.ok) {
+        let errorData;
+        try {
+          errorData = await res.json();
+        } catch {
+          // Ignore parse error, fallback to default
+        }
+        throw new Error(errorData?.error || `Analysis failed: ${res.statusText}`)
+      }
 
       const apiData = await res.json()
       const finalData: JobData = { ...apiData, url: tabUrl }
