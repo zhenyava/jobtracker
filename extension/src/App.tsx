@@ -148,7 +148,7 @@ function App() {
       const res = await fetch(`${API_URL}/api/analyze-job`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: cleanText.substring(0, 15000) }), // Limit length
+        body: JSON.stringify({ text: cleanText.substring(0, MAX_TEXT_LENGTH) }),
         credentials: 'include',
       })
 
