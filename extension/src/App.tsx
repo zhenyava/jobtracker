@@ -48,7 +48,7 @@ function App() {
       const data = await res.json()
       setProfiles(data)
       if (data.length > 0) {
-        const saved = localStorage.getItem('lastProfileId')
+        const { lastProfileId: saved } = await chrome.storage.local.get('lastProfileId')
         const found = data.find((p: Profile) => p.id === saved)
         setSelectedProfileId(found ? found.id : data[0].id)
       }
