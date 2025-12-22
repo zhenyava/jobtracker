@@ -1,5 +1,6 @@
 import { getApplications } from '@/actions/application'
 import { getJobProfiles } from '@/actions/profile'
+import { ApplicationStatusSelect } from '@/components/application-status-select'
 import { CreateProfileDialog } from '@/components/create-profile-dialog'
 import { Button } from '@/components/ui/button'
 import { Briefcase, MapPin } from 'lucide-react'
@@ -12,19 +13,6 @@ function formatDate(dateString: string) {
     day: 'numeric',
     year: 'numeric'
   })
-}
-
-function getStatusColor(status: string) {
-  switch (status) {
-    case 'offer': return 'bg-green-100 text-green-700'
-    case 'rejected': return 'bg-red-100 text-red-700'
-    case 'hr_screening': return 'bg-blue-100 text-blue-700'
-    default: return 'bg-gray-100 text-gray-700'
-  }
-}
-
-function formatStatus(status: string) {
-  return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 }
 
 export default async function DashboardPage({
@@ -102,7 +90,7 @@ export default async function DashboardPage({
                 <thead className="[&_tr]:border-b">
                   <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                     <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Company</th>
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Status</th>
+                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[180px]">Status</th>
                     <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Type</th>
                     <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Applied</th>
                     <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-right">Action</th>
@@ -123,9 +111,10 @@ export default async function DashboardPage({
                         </div>
                       </td>
                       <td className="p-4 align-middle">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(app.status)}`}>
-                          {formatStatus(app.status)}
-                        </span>
+                        <ApplicationStatusSelect 
+                          id={app.id} 
+                          currentStatus={app.status} 
+                        />
                       </td>
                       <td className="p-4 align-middle capitalize text-muted-foreground">
                         {app.work_type}
