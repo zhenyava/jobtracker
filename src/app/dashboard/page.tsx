@@ -1,8 +1,31 @@
+import { getApplications } from '@/actions/application'
 import { getJobProfiles } from '@/actions/profile'
 import { CreateProfileDialog } from '@/components/create-profile-dialog'
 import { Button } from '@/components/ui/button'
-import { Briefcase } from 'lucide-react'
+import { Briefcase, MapPin } from 'lucide-react'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+}
+
+function getStatusColor(status: string) {
+  switch (status) {
+    case 'offer': return 'bg-green-100 text-green-700'
+    case 'rejected': return 'bg-red-100 text-red-700'
+    case 'hr_screening': return 'bg-blue-100 text-blue-700'
+    default: return 'bg-gray-100 text-gray-700'
+  }
+}
+
+function formatStatus(status: string) {
+  return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
 
 export default async function DashboardPage({
   searchParams,
@@ -10,7 +33,15 @@ export default async function DashboardPage({
   searchParams: Promise<{ profileId?: string }>
 }) {
   const resolvedSearchParams = await searchParams
-  const { data: profiles } = await getJobProfiles()
+  
+  // Parallel fetching
+  const [profilesRes, applicationsRes] = await Promise.all([
+    getJobProfiles(),
+    getApplications()
+  ])
+  
+  const profiles = profilesRes.data
+  const applications = applicationsRes.data || []
   
   const hasProfiles = profiles && profiles.length > 0
   const profileId = resolvedSearchParams.profileId
@@ -43,17 +74,85 @@ export default async function DashboardPage({
   const activeProfile = profiles.find(p => p.id === profileId)
 
   return (
-    <div className="p-8">
-      <header className="mb-8">
+    <div className="p-8 space-y-8">
+      <header>
         <h1 className="text-3xl font-bold">{activeProfile?.name || 'Dashboard'}</h1>
         <p className="text-muted-foreground">Manage your applications for this profile.</p>
       </header>
+
+      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Placeholder for future stats */}
-        <div className="p-6 border rounded-xl bg-card text-card-foreground shadow">
-          <div className="font-semibold">Total Applications</div>
-          <div className="text-2xl font-bold">0</div>
+        <div className="p-6 border rounded-xl bg-card text-card-foreground shadow-sm">
+          <div className="text-sm font-medium text-muted-foreground">Total Applications</div>
+          <div className="text-2xl font-bold mt-2">{applications.length}</div>
         </div>
+      </div>
+
+      {/* Applications List */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold tracking-tight">Recent Applications</h2>
+        
+        {applications.length === 0 ? (
+          <div className="text-center py-12 border rounded-xl bg-muted/10 border-dashed">
+            <p className="text-muted-foreground">No applications yet. Use the browser extension to add one.</p>
+          </div>
+        ) : (
+          <div className="rounded-md border bg-card">
+            <div className="relative w-full overflow-auto">
+              <table className="w-full caption-bottom text-sm text-left">
+                <thead className="[&_tr]:border-b">
+                  <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Company</th>
+                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Status</th>
+                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Type</th>
+                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Applied</th>
+                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="[&_tr:last-child]:border-0">
+                  {applications.map((app) => (
+                    <tr key={app.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                      <td className="p-4 align-middle">
+                        <div className="flex flex-col">
+                          <span className="font-semibold">{app.company_name}</span>
+                          {app.location && (
+                            <div className="flex items-center text-xs text-muted-foreground mt-1">
+                              <MapPin className="mr-1 h-3 w-3" />
+                              {app.location}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-4 align-middle">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(app.status)}`}>
+                          {formatStatus(app.status)}
+                        </span>
+                      </td>
+                      <td className="p-4 align-middle capitalize text-muted-foreground">
+                        {app.work_type}
+                      </td>
+                      <td className="p-4 align-middle text-muted-foreground">
+                        {formatDate(app.applied_at)}
+                      </td>
+                      <td className="p-4 align-middle text-right">
+                        <Link 
+                          href={app.job_url} 
+                          target="_blank"
+                          className="text-blue-600 hover:underline text-xs font-medium inline-flex items-center"
+                        >
+                          View Job
+                          <svg className="ml-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
