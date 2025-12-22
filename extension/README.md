@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+# Job Tracker Chrome Extension
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the browser extension companion for the Job Tracker SaaS. It allows users to quickly scrape job descriptions from any website, analyze them using AI, and save them to their dashboard.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+*   **Auth Integration:** Syncs login state with the main Next.js web app (localhost:3000).
+*   **One-Click Analysis:** Scrapes the active tab's content using `@mozilla/readability`.
+*   **AI Processing:** Sends cleaned text to the backend (`/api/analyze-job`) to extract:
+    *   Company Name
+    *   Position / Role
+    *   Location & Format (Remote/Hybrid/Office)
+    *   Industry (e.g., SaaS, FinTech)
+    *   Summary
+*   **State Persistence:** Saves analysis progress and results to `chrome.storage.local`, so you don't lose data if you accidentally close the popup.
 
-## React Compiler
+## 🛠️ Development Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1.  **Install Dependencies:**
+    ```bash
+    cd extension
+    npm install
+    ```
 
-## Expanding the ESLint configuration
+2.  **Build in Watch Mode (Recommended):**
+    This will rebuild the extension whenever you make changes.
+    ```bash
+    npm run dev
+    # OR manually:
+    npm run build
+    ```
+    *Note: Since this is a Vite app, `npm run dev` starts a dev server, but for Chrome Extensions, you usually need the static `dist` folder. Run `npm run build` to generate it.*
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+3.  **Load into Chrome:**
+    *   Open Chrome and navigate to `chrome://extensions/`.
+    *   Enable **Developer mode** (toggle in top right).
+    *   Click **Load unpacked**.
+    *   Select the `extension/dist` directory.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+4.  **Test:**
+    *   Ensure the main web app is running (`npm run dev` in the project root).
+    *   Log in to the web app.
+    *   Open the extension on a job posting page.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 📦 Architecture
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+*   **Framework:** React + TypeScript + Vite.
+*   **Styling:** Tailwind CSS.
+*   **Permissions:**
+    *   `activeTab` & `scripting`: To access page content.
+    *   `storage`: To save form state.
+    *   `cookies`: To check `sb-access-token` for authentication.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ⚠️ Notes
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+*   The extension relies on the main web app running at `http://localhost:3000` for API calls.
+*   CORS is handled by the Next.js backend to allow requests from the extension.
