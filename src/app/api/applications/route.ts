@@ -9,7 +9,7 @@ const ALLOWED_ORIGINS = [
   process.env.NEXT_PUBLIC_EXTENSION_ORIGIN,
 ].filter(Boolean)
 
-function createCorsResponse(body: any, init?: ResponseInit, origin?: string | null) {
+function createCorsResponse(body: unknown, init?: ResponseInit, origin?: string | null) {
   const response = NextResponse.json(body, init)
   
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
