@@ -72,3 +72,31 @@ export async function updateApplicationStatus(id: string, status: string): Promi
     return { success: false, error: 'Internal Server Error' }
   }
 }
+
+export async function updateApplicationIndustry(id: string, industry: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const { error } = await supabase
+      .from('job_applications' as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+      .update({ industry })
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (error) {
+      console.error('Error updating application industry:', error)
+      return { success: false, error: 'Failed to update industry' }
+    }
+
+    revalidatePath('/dashboard')
+    return { success: true }
+  } catch (error) {
+    console.error('Unexpected error:', error)
+    return { success: false, error: 'Internal Server Error' }
+  }
+}
