@@ -51,6 +51,8 @@ export default async function DashboardPage({
           <Briefcase className="h-8 w-8 text-muted-foreground" />
         </div>
         <div className="space-y-2">
+          <h2 className="text-lg font-semibold">You have no profiles yet</h2>
+          <p className="text-muted-foreground text-sm max-w-sm mx-auto">
             Create a profile (e.g., &#39;Senior React Developer&#39;) to start tracking your job applications.
           </p>
         </div>
