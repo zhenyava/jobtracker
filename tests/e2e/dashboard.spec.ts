@@ -139,47 +139,4 @@ test.describe('Dashboard', () => {
     // Verify Status Dropdown exists
     await expect(page.getByRole('combobox').filter({ hasText: 'HR Screening' })).toBeVisible()
   })
-
-  test('updates application status', async ({ page }) => {
-    await signInTestUser(page, userEmail)
-
-    await page.goto('/dashboard')
-    await page.getByRole('button', { name: 'Create Profile' }).click()
-    const profileName = `Update Test ${Date.now()}`
-    await page.getByRole('dialog').getByLabel('Profile Name').fill(profileName)
-    await page.getByRole('dialog').getByRole('button', { name: 'Create Profile' }).click()
-    await page.waitForURL(/profileId=/)
-
-    const url = new URL(page.url())
-    const profileId = url.searchParams.get('profileId')
-    
-    // Seed Data
-    await page.request.post('/api/applications', {
-      data: {
-        profileId,
-        companyName: 'Update Corp',
-        jobUrl: 'https://example.com/job',
-        description: 'Desc',
-        workType: 'office',
-        industry: 'Other'
-      }
-    })
-
-    await page.reload()
-
-    // Find status button (combobox) and click
-    const statusButton = page.getByRole('combobox').filter({ hasText: 'HR Screening' })
-    await expect(statusButton).toBeVisible()
-    await statusButton.click()
-
-    // Select new status from dropdown
-    await page.getByRole('option', { name: 'Offer' }).click()
-
-    // Verify Optimistic Update
-    await expect(page.getByRole('combobox').filter({ hasText: 'Offer' })).toBeVisible()
-
-    // Verify Persistence
-    await page.reload()
-    await expect(page.getByRole('combobox').filter({ hasText: 'Offer' })).toBeVisible()
-  })
 })

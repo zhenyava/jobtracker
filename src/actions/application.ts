@@ -3,7 +3,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-// Temporary type definition until we generate DB types
 export interface JobApplication {
   id: string
   company_name: string
@@ -53,8 +52,10 @@ export async function getApplications(profileId: string): Promise<{ success: boo
   }
 }
 
-// Internal unified update function to keep logic DRY
-async function updateApplication(id: string, updates: Partial<Pick<JobApplication, 'status' | 'industry'>>): Promise<{ success: boolean; error?: string }> {
+async function updateApplication(
+  id: string, 
+  data: Partial<Pick<JobApplication, 'status' | 'industry'>>
+): Promise<{ success: boolean; error?: string }> {
   try {
     const auth = await getAuthenticatedClient()
     if (!auth) return { success: false, error: 'Unauthorized' }
@@ -62,12 +63,12 @@ async function updateApplication(id: string, updates: Partial<Pick<JobApplicatio
 
     const { error } = await supabase
       .from('job_applications' as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .update(updates)
+      .update(data)
       .eq('id', id)
       .eq('user_id', user.id)
 
     if (error) {
-      console.error('Error updating application:', error)
+      console.error(`Error updating application ${id}:`, error)
       return { success: false, error: 'Failed to update application' }
     }
 
@@ -79,7 +80,6 @@ async function updateApplication(id: string, updates: Partial<Pick<JobApplicatio
   }
 }
 
-// Public wrappers to match EditableSelect signature (string value) and allow .bind usage
 export async function updateApplicationStatus(id: string, status: string) {
   return updateApplication(id, { status })
 }
