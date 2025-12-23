@@ -1,16 +1,4 @@
-# Job Tracker SaaS
-
-"Huntr for poor but smart people".
 A simple, fast, and extension-first job tracking tool.
-
-## Tech Stack
-
-- **Frontend:** Next.js 14 (App Router), React, Tailwind CSS, Shadcn/ui
-- **Backend:** Next.js Server Actions
-- **Database & Auth:** Supabase
-- **Extension:** Vite + React (in `/extension` folder)
-
-## Getting Started
 
 ### 1. Prerequisites
 
@@ -60,9 +48,3 @@ Notes:
 - A test helper route at `/api/test-support/auth` exists only when `E2E_TESTING=true`; it seeds/cleans a test user and issues the Supabase auth cookie.
 - ESLint blocks `process.env.E2E_TESTING` outside `tests/**` and `src/app/api/test-support/**` to avoid test-only code leaking into the app.
 
-## Project Structure
-
-- `src/` - Main Next.js application code.
-- `src/actions/` - Server Actions (Backend logic).
-- `src/lib/supabase/` - Database clients.
-- `extension/` - Browser extension source code.
