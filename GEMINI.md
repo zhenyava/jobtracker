@@ -121,6 +121,7 @@ You have to follow instructions below step by step each time then you get reques
 | `GET` | `/auth/callback` | OAuth callback handler. Exchanges code for session. | No |
 | `GET` | `/api/profiles` | Returns list of job profiles for the current user. | Yes (Cookie) |
 | `POST` | `/api/analyze-job` | Analyzes job description text using LLM. Returns structured JSON. | Yes (Cookie) |
+| `POST` | `/api/applications` | Creates a new job application. Used by browser extension. | Yes (Cookie) |
 
 ### Server Actions (`src/actions/`)
 | Function Name | Description | Inputs | Returns |
@@ -128,3 +129,21 @@ You have to follow instructions below step by step each time then you get reques
 | `signOutAction` | Signs out the user and redirects to `/login`. | `void` | `void` (Redirects) |
 | `createJobProfile` | Creates a new job profile. | `name: string` | `{ success, data: Profile }` |
 | `getJobProfiles` | Fetches all profiles for the current user. | `void` | `{ success, data: Profile[] }` |
+| `updateApplicationStatus` | Updates the status of a job application. | `id: string, status: string` | `{ success, error? }` |
+| `updateApplicationIndustry` | Updates the industry of a job application. | `id: string, industry: string` | `{ success, error? }` |
+
+## 7. 🚦 PROJECT STATUS
+*   **Core Infrastructure:** Configured (Next.js, Supabase, Tailwind, Shadcn).
+*   **Authentication:** Implemented (Google OAuth, Middleware protection).
+*   **Database:** Tables for `job_profiles` and `job_applications` created with RLS.
+*   **API:** Endpoints for extension integration (`/api/applications`) and auth check (`/api/auth/me`) implemented and tested.
+*   **Dashboard:**
+    *   Profile creation and switching (Sidebar/Header).
+    *   Application list with editable Status and Industry fields using Radix Select.
+    *   Optimistic UI for field updates.
+    *   Empty states and statistics (Total Applications).
+*   **Extension:** Basic setup with Vite + React, communication with API implemented.
+*   **Testing:**
+    *   Unit tests for validators and auth actions.
+    *   E2E tests for main flows (Auth, Profile creation, Application list display).
+    *   *Note:* E2E test for interactive status updates temporarily disabled due to cross-browser flakiness.

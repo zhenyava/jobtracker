@@ -86,4 +86,57 @@ test.describe('Dashboard', () => {
     await expect(page).toHaveURL(/\/login/)
     await expect(page.getByText('Welcome back')).toBeVisible()
   })
+
+  test('shows empty state when profile has no applications', async ({ page }) => {
+    await signInTestUser(page, userEmail)
+
+    await page.goto('/dashboard')
+    await page.getByRole('button', { name: 'Create Profile' }).click()
+    const profileName = `Empty State ${Date.now()}`
+    await page.getByRole('dialog').getByLabel('Profile Name').fill(profileName)
+    await page.getByRole('dialog').getByRole('button', { name: 'Create Profile' }).click()
+    await page.waitForURL(/profileId=/)
+
+    await expect(page.getByText('No applications for this profile yet')).toBeVisible()
+    await expect(page.getByText('Total Applications')).toBeVisible()
+    await expect(page.getByText('0', { exact: true })).toBeVisible()
+  })
+
+  test('displays applications list', async ({ page }) => {
+    await signInTestUser(page, userEmail)
+
+    await page.goto('/dashboard')
+    await page.getByRole('button', { name: 'Create Profile' }).click()
+    const profileName = `List Test ${Date.now()}`
+    await page.getByRole('dialog').getByLabel('Profile Name').fill(profileName)
+    await page.getByRole('dialog').getByRole('button', { name: 'Create Profile' }).click()
+    await page.waitForURL(/profileId=/)
+
+    const url = new URL(page.url())
+    const profileId = url.searchParams.get('profileId')
+    
+    // Seed Data
+    await page.request.post('/api/applications', {
+      data: {
+        profileId,
+        companyName: 'Display Corp',
+        jobUrl: 'https://example.com/job',
+        description: 'Desc',
+        workType: 'remote',
+        industry: 'FinTech' // Standard option
+      }
+    })
+
+    await page.reload()
+
+    await expect(page.getByRole('cell', { name: 'Display Corp' })).toBeVisible()
+    
+    // Verify Industry Dropdown exists
+    await expect(page.getByRole('combobox').filter({ hasText: 'FinTech' })).toBeVisible()
+    
+    await expect(page.getByRole('cell', { name: 'Remote' })).toBeVisible()
+    
+    // Verify Status Dropdown exists
+    await expect(page.getByRole('combobox').filter({ hasText: 'HR Screening' })).toBeVisible()
+  })
 })
