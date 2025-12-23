@@ -53,7 +53,8 @@ export async function getApplications(profileId: string): Promise<{ success: boo
   }
 }
 
-export async function updateApplication(id: string, updates: Partial<Pick<JobApplication, 'status' | 'industry'>>): Promise<{ success: boolean; error?: string }> {
+// Internal unified update function to keep logic DRY
+async function updateApplication(id: string, updates: Partial<Pick<JobApplication, 'status' | 'industry'>>): Promise<{ success: boolean; error?: string }> {
   try {
     const auth = await getAuthenticatedClient()
     if (!auth) return { success: false, error: 'Unauthorized' }
@@ -76,4 +77,13 @@ export async function updateApplication(id: string, updates: Partial<Pick<JobApp
     console.error('Unexpected error:', error)
     return { success: false, error: 'Internal Server Error' }
   }
+}
+
+// Public wrappers to match EditableSelect signature (string value) and allow .bind usage
+export async function updateApplicationStatus(id: string, status: string) {
+  return updateApplication(id, { status })
+}
+
+export async function updateApplicationIndustry(id: string, industry: string) {
+  return updateApplication(id, { industry })
 }

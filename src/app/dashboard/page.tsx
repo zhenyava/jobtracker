@@ -1,4 +1,4 @@
-import { getApplications, updateApplication } from '@/actions/application'
+import { getApplications, updateApplicationIndustry, updateApplicationStatus } from '@/actions/application'
 import { getJobProfiles } from '@/actions/profile'
 import { CreateProfileDialog } from '@/components/create-profile-dialog'
 import { EditableSelect } from '@/components/editable-select'
@@ -7,6 +7,8 @@ import { INDUSTRY_OPTIONS, STATUS_OPTIONS } from '@/config/options'
 import { Briefcase, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+
+export const dynamic = 'force-dynamic'
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -140,7 +142,7 @@ export default async function DashboardPage({
                         <EditableSelect 
                           initialValue={app.industry || ''}
                           options={INDUSTRY_OPTIONS}
-                          onUpdate={(val) => updateApplication(app.id, { industry: val })}
+                          onUpdate={updateApplicationIndustry.bind(null, app.id)}
                           placeholder="Select industry"
                         />
                       </td>
@@ -148,7 +150,7 @@ export default async function DashboardPage({
                         <EditableSelect 
                           initialValue={app.status}
                           options={STATUS_OPTIONS}
-                          onUpdate={(val) => updateApplication(app.id, { status: val })}
+                          onUpdate={updateApplicationStatus.bind(null, app.id)}
                           placeholder="Select status"
                           className="min-w-[140px]"
                         />
