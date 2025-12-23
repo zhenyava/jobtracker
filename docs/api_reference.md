@@ -16,6 +16,11 @@
 | `POST` | `/api/analyze-job` | Analyzes job description text using LLM. Returns structured JSON. | Yes (Cookie) |
 | `POST` | `/api/applications` | Creates a new job application. Used by browser extension. | Yes (Cookie) |
 
+### Test Support Routes (Enabled only when `E2E_TESTING=true`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/test-support/auth` | Seeds/cleans a test user and issues a Supabase auth cookie. | No |
+
 ### Server Actions (`src/actions/`)
 | Function Name | Description | Inputs | Returns |
 | :--- | :--- | :--- | :--- |
