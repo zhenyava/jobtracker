@@ -45,7 +45,7 @@ export async function getApplications(profileId: string): Promise<{ success: boo
       return { success: false, error: 'Failed to fetch applications' }
     }
 
-    return { success: true, data: data as JobApplication[] }
+    return { success: true, data: data as unknown as JobApplication[] }
   } catch (error) {
     console.error('Unexpected error:', error)
     return { success: false, error: 'Internal Server Error' }
