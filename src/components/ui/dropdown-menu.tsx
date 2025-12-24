@@ -6,6 +6,15 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * DropdownMenu Component
+ *
+ * Used for displaying a list of actions or options triggered by a button.
+ * Commonly used for context menus, user menus, or settings menus.
+ *
+ * Unlike Select (or EditableSelect), this component is NOT designed for form input selection
+ * where a value is chosen and displayed in the trigger.
+ */
 function DropdownMenu({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {

@@ -23,6 +23,7 @@ import { INDUSTRY_OPTIONS, STATUS_OPTIONS } from '@/config/options'
 import { MapPin, MoreHorizontal, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -47,11 +48,12 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
     try {
       const result = await deleteApplication(deleteId)
       if (!result.success) {
-        console.error('Failed to delete application:', result.error)
-        // Optionally show toast error here
+        toast.error(result.error || 'Failed to delete application')
+      } else {
+        toast.success('Application deleted')
       }
-    } catch (error) {
-      console.error('Error deleting application:', error)
+    } catch {
+      toast.error('Failed to delete application')
     } finally {
       setIsDeleting(false)
       setDeleteId(null)
