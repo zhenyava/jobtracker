@@ -47,11 +47,7 @@ export function CreateProfileDialog({ trigger, open: controlledOpen, onOpenChang
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" size="icon" aria-label="Create Profile">
-            <Plus className="h-4 w-4" />
-          </Button>
-        )}
+        {trigger || <Button variant="outline" size="icon"><Plus className="h-4 w-4" /></Button>}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
