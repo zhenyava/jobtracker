@@ -131,7 +131,7 @@ export function ProfileSidebar({ profiles }: { profiles: Profile[] }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the profile <strong>{profileToDelete?.name}</strong> and all associated job applications.
+              This action cannot be undone. This will permanently delete the profile <strong>{profileToDelete?.name}</strong> and <span className="text-red-600 font-bold">all associated job applications</span>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
