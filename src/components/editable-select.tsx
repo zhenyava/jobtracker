@@ -25,6 +25,13 @@ interface EditableSelectProps {
   className?: string
 }
 
+/**
+ * EditableSelect Component
+ *
+ * A specialized wrapper around the Select component designed for inline editing of values.
+ * It behaves like a form input: selecting an option updates the value immediately (optimistic UI)
+ * and triggers a server action.
+ */
 export function EditableSelect({ 
   initialValue = '', 
   options, 
