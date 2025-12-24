@@ -1,22 +1,12 @@
-import { getApplications, updateApplicationIndustry, updateApplicationStatus } from '@/actions/application'
+import { getApplications } from '@/actions/application'
 import { getJobProfiles } from '@/actions/profile'
+import { ApplicationsTable } from '@/components/applications-table'
 import { CreateProfileDialog } from '@/components/create-profile-dialog'
-import { EditableSelect } from '@/components/editable-select'
 import { Button } from '@/components/ui/button'
-import { INDUSTRY_OPTIONS, STATUS_OPTIONS } from '@/config/options'
-import { Briefcase, MapPin } from 'lucide-react'
-import Link from 'next/link'
+import { Briefcase } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
-
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  })
-}
 
 export default async function DashboardPage({
   searchParams,
@@ -104,82 +94,7 @@ export default async function DashboardPage({
       <div className="space-y-4">
         <h2 className="text-xl font-semibold tracking-tight">Recent Applications</h2>
         
-        {applications.length === 0 ? (
-          <div className="text-center py-12 border rounded-xl bg-muted/10 border-dashed">
-            <p className="text-muted-foreground">No applications for this profile yet.</p>
-          </div>
-        ) : (
-          <div className="rounded-md border bg-card">
-            <div className="relative w-full overflow-auto">
-              <table className="w-full caption-bottom text-sm text-left">
-                <thead className="[&_tr]:border-b">
-                  <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[280px]">Company</th>
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[200px]">Industry</th>
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[180px]">Status</th>
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[120px]">Work Type</th>
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[120px]">Applied</th>
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-right w-[80px]">URL</th>
-                  </tr>
-                </thead>
-                <tbody className="[&_tr:last-child]:border-0">
-                  {applications.map((app) => (
-                    <tr key={app.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                      <td className="p-4 align-middle">
-                        <div className="flex flex-col">
-                          <span className="font-semibold truncate max-w-[260px]" title={app.company_name}>
-                            {app.company_name}
-                          </span>
-                          {app.location && (
-                            <div className="flex items-center text-xs text-muted-foreground mt-1 truncate max-w-[260px]">
-                              <MapPin className="mr-1 h-3 w-3 flex-shrink-0" />
-                              {app.location}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-4 align-middle">
-                        <EditableSelect 
-                          initialValue={app.industry || ''}
-                          options={INDUSTRY_OPTIONS}
-                          onUpdate={updateApplicationIndustry.bind(null, app.id)}
-                          placeholder="Select industry"
-                        />
-                      </td>
-                      <td className="p-4 align-middle">
-                        <EditableSelect 
-                          initialValue={app.status}
-                          options={STATUS_OPTIONS}
-                          onUpdate={updateApplicationStatus.bind(null, app.id)}
-                          placeholder="Select status"
-                          className="min-w-[140px]"
-                        />
-                      </td>
-                      <td className="p-4 align-middle capitalize text-muted-foreground">
-                        {app.work_type}
-                      </td>
-                      <td className="p-4 align-middle text-muted-foreground">
-                        {formatDate(app.applied_at)}
-                      </td>
-                      <td className="p-4 align-middle text-right">
-                        <Link 
-                          href={app.job_url} 
-                          target="_blank"
-                          className="text-blue-600 hover:underline text-xs font-medium inline-flex items-center"
-                        >
-                          Link
-                          <svg className="ml-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        <ApplicationsTable applications={applications} />
       </div>
     </div>
   )
