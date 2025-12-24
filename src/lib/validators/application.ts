@@ -7,9 +7,7 @@ export const createApplicationSchema = z.object({
   jobUrl: z.string().url("Invalid Job URL"),
   description: z.string().min(1, "Job description is required"),
   location: z.string().optional(),
-  workType: z.enum(['remote', 'office', 'hybrid'], {
-    errorMap: () => ({ message: "Work type must be 'remote', 'office', or 'hybrid'" })
-  } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
+  workType: z.enum(['remote', 'office', 'hybrid']),
 });
 
 export type CreateApplicationPayload = z.infer<typeof createApplicationSchema>;
