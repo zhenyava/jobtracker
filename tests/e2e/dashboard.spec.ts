@@ -191,4 +191,51 @@ test.describe('Dashboard', () => {
     // 9. Verify application is gone
     await expect(page.getByText(appName)).not.toBeVisible()
   })
+
+  test('renames a profile', async ({ page }) => {
+    await signInTestUser(page, userEmail)
+
+    await page.goto('/dashboard')
+    await page.getByRole('button', { name: 'Create Profile' }).click()
+
+    const originalName = `To Rename ${Date.now()}`
+    const dialog = page.getByRole('dialog')
+    await dialog.getByLabel('Profile Name').fill(originalName)
+    await dialog.getByRole('button', { name: 'Create Profile' }).click()
+
+    await page.waitForURL(/profileId=/)
+    await expect(page.getByRole('heading', { level: 1, name: originalName })).toBeVisible()
+
+    // Find the sidebar item container that matches the profile name
+    // The sidebar structure: <div class="group ..."><Link>Name</Link> ... <Dropdown>...</div>
+    const sidebarItem = page.locator('.group').filter({ hasText: originalName })
+
+    // Hover to reveal the menu button (since it has opacity-0 group-hover:opacity-100)
+    await sidebarItem.hover()
+
+    // Click the menu button
+    await sidebarItem.getByRole('button', { name: 'Menu' }).click()
+
+    // Click Rename option
+    await page.getByRole('menuitem', { name: 'Rename' }).click()
+
+    // Verify Rename Dialog appears
+    const renameDialog = page.getByRole('dialog')
+    await expect(renameDialog).toBeVisible()
+    await expect(renameDialog.getByRole('heading', { name: 'Rename Job Profile' })).toBeVisible()
+
+    // Enter new name
+    const newName = `Renamed ${Date.now()}`
+    await renameDialog.getByLabel('Profile Name').fill(newName)
+    await renameDialog.getByRole('button', { name: 'Save Changes' }).click()
+
+    // Verify new name is visible in sidebar and header
+    await expect(page.getByRole('heading', { level: 1, name: newName })).toBeVisible()
+    await expect(page.getByRole('link', { name: newName })).toBeVisible()
+
+    // Verify old name is not visible (unless it's part of the new name, which it isn't here)
+    // Note: getByRole('link', { name: originalName }) might still match if newName contains originalName
+    // so we chose distinct names.
+    await expect(page.getByRole('link', { name: originalName })).not.toBeVisible()
+  })
 })
