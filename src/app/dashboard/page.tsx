@@ -58,6 +58,13 @@ export default async function DashboardPage({
     redirect(`/dashboard?profileId=${profiles[0].id}`)
   }
 
+  const activeProfile = profiles.find(p => p.id === profileId)
+
+  if (profileId && !activeProfile) {
+    // Profile ID provided but not found in user's profiles (e.g. was deleted)
+    redirect('/dashboard')
+  }
+
   // 2. Fetch Applications for active profile
   const applicationsRes = await getApplications(profileId)
   
@@ -67,7 +74,6 @@ export default async function DashboardPage({
   }
 
   const applications = applicationsRes.data || []
-  const activeProfile = profiles.find(p => p.id === profileId)
 
   return (
     <div className="p-8 space-y-8">

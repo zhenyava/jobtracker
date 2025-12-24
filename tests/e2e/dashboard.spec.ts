@@ -238,4 +238,116 @@ test.describe('Dashboard', () => {
     // so we chose distinct names.
     await expect(page.getByRole('link', { name: originalName })).not.toBeVisible()
   })
+
+  test('deletes a profile and redirects to another profile', async ({ page }) => {
+    await signInTestUser(page, userEmail)
+
+    await page.goto('/dashboard')
+
+    // Create Profile A
+    await page.getByRole('button', { name: 'Create Profile' }).click()
+    const profileA = `Profile A ${Date.now()}`
+    await page.getByRole('dialog').getByLabel('Profile Name').fill(profileA)
+    await page.getByRole('dialog').getByRole('button', { name: 'Create Profile' }).click()
+    await page.waitForURL(/profileId=/)
+
+    // Create Profile B
+    await page.getByRole('button', { name: 'Create Profile' }).click()
+    const profileB = `Profile B ${Date.now()}`
+    await page.getByRole('dialog').getByLabel('Profile Name').fill(profileB)
+    await page.getByRole('dialog').getByRole('button', { name: 'Create Profile' }).click()
+    await page.waitForURL(/profileId=/)
+
+    // Select Profile A
+    await page.getByRole('link', { name: profileA }).click()
+    await expect(page.getByRole('heading', { level: 1, name: profileA })).toBeVisible()
+
+    // Delete Profile A
+    const sidebarItem = page.locator('.group').filter({ hasText: profileA })
+    await sidebarItem.hover()
+    await sidebarItem.getByRole('button', { name: 'Menu' }).click()
+    await page.getByRole('menuitem', { name: 'Delete' }).click()
+
+    // Confirm Delete
+    await expect(page.getByRole('alertdialog')).toBeVisible()
+    await page.getByRole('button', { name: 'Delete' }).click()
+
+    // Verify Redirect to Profile B (or the remaining profile)
+    await expect(page.getByRole('heading', { level: 1, name: profileB })).toBeVisible()
+    await expect(page.getByRole('link', { name: profileA })).not.toBeVisible()
+  })
+
+  test('deletes the last profile and shows empty state', async ({ page }) => {
+    // Note: This test assumes the user starts fresh or we clean up.
+    // Since we reuse the user across tests in this file, we might have leftover profiles.
+    // Ideally we should delete all profiles first or use a new user.
+    // Given the test structure, 'userEmail' is created per worker, so it's fresh per worker but reused across tests in the file?
+    // "test.beforeAll(({ }, testInfo) => { userEmail = buildTestEmail(testInfo) })"
+    // Yes, reused across tests. So we might have profiles from previous tests.
+    // We should delete all profiles loop until empty state.
+
+    await signInTestUser(page, userEmail)
+    await page.goto('/dashboard')
+
+    // Helper to delete current profile
+    const deleteCurrentProfile = async () => {
+      // We assume we are on a profile page
+      // Get the profile name from header
+      const header = page.getByRole('heading', { level: 1 })
+      const name = await header.innerText()
+      if (name === 'Dashboard' || name === 'You have no profiles yet') return false
+
+      const sidebarItem = page.locator('.group').filter({ hasText: name }).first()
+      // If we can't find it in sidebar, maybe something is wrong or it's not loaded
+      if (await sidebarItem.count() === 0) return false
+
+      await sidebarItem.hover()
+      await sidebarItem.getByRole('button', { name: 'Menu' }).click()
+      await page.getByRole('menuitem', { name: 'Delete' }).click()
+      await page.getByRole('button', { name: 'Delete' }).click()
+      return true
+    }
+
+    // Keep deleting until we see empty state
+    // Limit iterations to avoid infinite loop
+    for (let i = 0; i < 20; i++) {
+        try {
+            // Check if we are in empty state
+            if (await page.getByText('You have no profiles yet').isVisible()) {
+                break
+            }
+            // If not, try to delete current
+            const deleted = await deleteCurrentProfile()
+            if (!deleted) {
+                // Try creating one if we are somehow stuck but not in empty state?
+                // Or maybe we are redirected to another profile.
+                // Just continue loop, page should update.
+                await page.waitForTimeout(500)
+            }
+            await page.waitForTimeout(500) // Wait for transition
+        } catch (e) {
+            console.log('Error in cleanup loop', e)
+        }
+    }
+
+    // Now create ONE profile to test the "delete last profile" scenario specifically
+    await page.getByRole('button', { name: 'Create Profile' }).click()
+    const lastProfile = `Last One ${Date.now()}`
+    await page.getByRole('dialog').getByLabel('Profile Name').fill(lastProfile)
+    await page.getByRole('dialog').getByRole('button', { name: 'Create Profile' }).click()
+    await page.waitForURL(/profileId=/)
+
+    await expect(page.getByRole('heading', { level: 1, name: lastProfile })).toBeVisible()
+
+    // Delete it
+    const sidebarItem = page.locator('.group').filter({ hasText: lastProfile })
+    await sidebarItem.hover()
+    await sidebarItem.getByRole('button', { name: 'Menu' }).click()
+    await page.getByRole('menuitem', { name: 'Delete' }).click()
+    await page.getByRole('button', { name: 'Delete' }).click()
+
+    // Verify empty state
+    await expect(page.getByText('You have no profiles yet')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Create Profile' })).toBeVisible()
+  })
 })
