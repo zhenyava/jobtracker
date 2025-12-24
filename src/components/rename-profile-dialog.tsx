@@ -24,15 +24,20 @@ export function RenameProfileDialog({ profileId, currentName, open, onOpenChange
     setLoading(true)
     setError('')
 
-    const res = await renameJobProfile(profileId, name)
+    try {
+      const res = await renameJobProfile(profileId, name)
 
-    if (res.success && res.data) {
-      if (onOpenChange) onOpenChange(false)
-      // No need to redirect if we're just renaming, but revalidatePath should handle the update
-    } else {
-      setError(res.error || 'Failed to rename profile')
+      if (res.success && res.data) {
+        onOpenChange(false)
+        // No need to redirect if we're just renaming, but revalidatePath should handle the update
+      } else {
+        setError(res.error || 'Failed to rename profile')
+      }
+    } catch {
+      setError('An unexpected error occurred')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
