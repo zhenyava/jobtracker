@@ -39,6 +39,24 @@ function App() {
   const [jobData, setJobData] = useState<JobData | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [applicationUrls, setApplicationUrls] = useState<string[]>([])
+  const [isAlreadyApplied, setIsAlreadyApplied] = useState(false)
+  const [currentUrl, setCurrentUrl] = useState('')
+
+  const fetchApplications = useCallback(async (profileId: string) => {
+    if (!profileId) return
+    try {
+      const res = await fetch(`${API_URL}/api/applications?profileId=${profileId}`, {
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to fetch applications')
+      const data = await res.json()
+      setApplicationUrls(data.map((app: { jobUrl: string }) => app.jobUrl))
+    } catch (error) {
+      console.error('Application fetch error:', error)
+      setApplicationUrls([]) // Clear on error
+    }
+  }, [])
 
   const fetchProfiles = useCallback(async () => {
     try {
@@ -86,6 +104,46 @@ function App() {
     checkAuth()
     loadPersistedState()
   }, [checkAuth])
+
+  useEffect(() => {
+    if (selectedProfileId) {
+      fetchApplications(selectedProfileId)
+    }
+  }, [selectedProfileId, fetchApplications])
+
+  useEffect(() => {
+    const getCurrentUrl = async () => {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+      if (tab?.url) {
+        try {
+          const url = new URL(tab.url)
+          // Normalize URL to remove hash and query params for better matching
+          setCurrentUrl(`${url.origin}${url.pathname}`)
+        } catch (error) {
+          console.warn('Invalid URL detected:', tab.url, error)
+          setCurrentUrl(tab.url) // Fallback to the raw URL
+        }
+      }
+    }
+    getCurrentUrl()
+  }, [])
+
+  useEffect(() => {
+     if (!currentUrl || applicationUrls.length === 0) {
+      setIsAlreadyApplied(false)
+      return
+    }
+    const normalizedUrls = applicationUrls.map(u => {
+      try {
+        const url = new URL(u)
+        return `${url.origin}${url.pathname}`
+      } catch {
+        // Fallback for potentially invalid URLs from DB
+        return u
+      }
+    })
+    setIsAlreadyApplied(normalizedUrls.includes(currentUrl))
+  }, [currentUrl, applicationUrls])
 
     const loadPersistedState = async () => {
       const result = await chrome.storage.local.get(['jobAnalysisStatus', 'jobAnalysisData'])
@@ -299,6 +357,11 @@ function App() {
                 Error: {errorMsg}
               </div>
             )}
+            {isAlreadyApplied ? (
+                <div className="text-center text-sm text-green-600 bg-green-50 p-3 rounded-md border border-green-200">
+                    You have already applied for this position.
+                </div>
+            ) : (
             <button
               onClick={handleAnalyze}
               disabled={!selectedProfileId}
@@ -306,6 +369,7 @@ function App() {
             >
               Analyze Job
             </button>
+            )}
           </div>
         )}
 
