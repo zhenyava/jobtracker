@@ -13,7 +13,7 @@ export async function createJobProfile(name: string) {
   if (!result.success) {
     return {
       success: false,
-      error: result.error?.errors?.[0]?.message || 'Invalid input',
+      error: result.error.format().name?._errors[0] || 'Invalid input',
     }
   }
 
