@@ -1,8 +1,8 @@
-import { expect, test } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
 
 const TEST_USER_PASSWORD = 'password123'
 
-async function signInTestUser(page: any, email: string) {
+async function signInTestUser(page: Page, email: string) {
   const response = await page.request.post('/api/test-support/auth', {
     data: {
       email,
