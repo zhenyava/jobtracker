@@ -5,16 +5,18 @@ import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { CreateProfileDialog } from './create-profile-dialog'
-import { Briefcase, LogOut, MoreHorizontal, Pencil } from 'lucide-react'
+import { Briefcase, LogOut, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { signOutAction } from '@/actions/auth'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { RenameProfileDialog } from './rename-profile-dialog'
 import { useState } from 'react'
+import { DeleteProfileDialog } from './delete-profile-dialog'
 
 // Define type locally since we don't have shared type package yet for DB entities across components
 interface Profile {
@@ -26,6 +28,7 @@ export function ProfileSidebar({ profiles }: { profiles: Profile[] }) {
   const searchParams = useSearchParams()
   const activeProfileId = searchParams.get('profileId')
   const [profileToRename, setProfileToRename] = useState<Profile | null>(null)
+  const [profileToDelete, setProfileToDelete] = useState<Profile | null>(null)
 
   return (
     <div className="w-64 border-r h-full bg-muted/10 flex flex-col">
@@ -59,6 +62,14 @@ export function ProfileSidebar({ profiles }: { profiles: Profile[] }) {
                     <Pencil className="mr-2 h-4 w-4" />
                     Rename
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setProfileToDelete(profile)}
+                    className="text-red-500 focus:text-red-500"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -77,6 +88,15 @@ export function ProfileSidebar({ profiles }: { profiles: Profile[] }) {
           currentName={profileToRename.name}
           open={!!profileToRename}
           onOpenChange={(open) => !open && setProfileToRename(null)}
+        />
+      )}
+
+      {profileToDelete && (
+        <DeleteProfileDialog
+          profileId={profileToDelete.id}
+          profileName={profileToDelete.name}
+          open={!!profileToDelete}
+          onOpenChange={(open) => !open && setProfileToDelete(null)}
         />
       )}
 

@@ -41,6 +41,32 @@ export async function createJobProfile(name: string) {
   return { success: true, data }
 }
 
+export async function deleteJobProfile(profileId: string) {
+  if (!profileId) {
+    return { success: false, error: 'Profile ID is required' }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const { error } = await supabase
+    .from('job_profiles')
+    .delete()
+    .eq('id', profileId)
+    .eq('user_id', user.id)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
 export async function renameJobProfile(profileId: string, newName: string) {
   const result = createProfileSchema.safeParse({ name: newName })
   if (!result.success) {
