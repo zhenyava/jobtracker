@@ -137,7 +137,7 @@ function App() {
       try {
         const url = new URL(u)
         return `${url.origin}${url.pathname}`
-      } catch (e) {
+      } catch {
         // Fallback for potentially invalid URLs from DB
         return u
       }
