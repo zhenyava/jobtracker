@@ -41,6 +41,38 @@ export async function createJobProfile(name: string) {
   return { success: true, data }
 }
 
+export async function renameJobProfile(profileId: string, newName: string) {
+  const result = createProfileSchema.safeParse({ name: newName })
+  if (!result.success) {
+    return {
+      success: false,
+      error: result.error.format().name?._errors[0] || 'Invalid input',
+    }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const { data, error } = await supabase
+    .from('job_profiles')
+    .update({ name: result.data.name })
+    .eq('id', profileId)
+    .eq('user_id', user.id)
+    .select()
+    .single()
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true, data }
+}
+
 export async function getJobProfiles() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
