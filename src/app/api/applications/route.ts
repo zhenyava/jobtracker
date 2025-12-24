@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         { 
           success: false, 
           error: 'Validation Error', 
-          details: validationResult.error.errors 
+          details: validationResult.error.issues
         }, 
         { status: 400 }, 
         origin
