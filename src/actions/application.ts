@@ -45,7 +45,7 @@ export async function getApplications(profileId: string): Promise<{ success: boo
       return { success: false, error: 'Failed to fetch applications' }
     }
 
-    return { success: true, data: (data || []) as unknown as JobApplication[] }
+    return { success: true, data: data as JobApplication[] }
   } catch (error) {
     console.error('Unexpected error:', error)
     return { success: false, error: 'Internal Server Error' }
@@ -86,29 +86,4 @@ export async function updateApplicationStatus(id: string, status: string) {
 
 export async function updateApplicationIndustry(id: string, industry: string) {
   return updateApplication(id, { industry })
-}
-
-export async function deleteApplication(id: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const auth = await getAuthenticatedClient()
-    if (!auth) return { success: false, error: 'Unauthorized' }
-    const { supabase, user } = auth
-
-    const { error } = await supabase
-      .from('job_applications' as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .delete()
-      .eq('id', id)
-      .eq('user_id', user.id)
-
-    if (error) {
-      console.error(`Error deleting application ${id}:`, error)
-      return { success: false, error: 'Failed to delete application' }
-    }
-
-    revalidatePath('/dashboard')
-    return { success: true }
-  } catch (error) {
-    console.error('Unexpected error:', error)
-    return { success: false, error: 'Internal Server Error' }
-  }
 }
