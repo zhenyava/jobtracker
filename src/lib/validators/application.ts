@@ -9,7 +9,7 @@ export const createApplicationSchema = z.object({
   location: z.string().optional(),
   workType: z.enum(['remote', 'office', 'hybrid'], {
     errorMap: () => ({ message: "Work type must be 'remote', 'office', or 'hybrid'" })
-  }),
+  } as any), // eslint-disable-line @typescript-eslint/no-explicit-any
 });
 
 export type CreateApplicationPayload = z.infer<typeof createApplicationSchema>;
