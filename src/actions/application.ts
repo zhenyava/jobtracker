@@ -14,6 +14,11 @@ export interface JobApplication {
   industry?: string
   match_score?: number
   profile_id: string
+  salary_min?: number
+  salary_max?: number
+  salary_currency?: string
+  salary_type?: string
+  salary_period?: string
 }
 
 async function getAuthenticatedClient() {
@@ -54,7 +59,7 @@ export async function getApplications(profileId: string): Promise<{ success: boo
 
 async function updateApplication(
   id: string, 
-  data: Partial<Pick<JobApplication, 'status' | 'industry'>>
+  data: Partial<JobApplication>
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const auth = await getAuthenticatedClient()
@@ -86,6 +91,19 @@ export async function updateApplicationStatus(id: string, status: string) {
 
 export async function updateApplicationIndustry(id: string, industry: string) {
   return updateApplication(id, { industry })
+}
+
+export async function updateApplicationSalary(
+  id: string,
+  salary: {
+    salary_min?: number
+    salary_max?: number
+    salary_currency?: string
+    salary_type?: string
+    salary_period?: string
+  }
+) {
+  return updateApplication(id, salary)
 }
 
 export async function deleteApplication(id: string): Promise<{ success: boolean; error?: string }> {

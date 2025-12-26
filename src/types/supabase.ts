@@ -35,6 +35,96 @@ export type Database = {
         }
         Relationships: []
       }
+      job_applications: {
+        Row: {
+          id: string
+          user_id: string
+          profile_id: string
+          company_name: string
+          industry: string | null
+          job_url: string
+          description: string
+          location: string | null
+          work_type: string
+          status: string
+          applied_at: string
+          next_action_at: string | null
+          rejection_reason: string | null
+          notes: string | null
+          match_score: number | null
+          created_at: string
+          updated_at: string
+          salary_min: number | null
+          salary_max: number | null
+          salary_currency: string | null
+          salary_type: string | null
+          salary_period: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          profile_id: string
+          company_name: string
+          industry?: string | null
+          job_url: string
+          description: string
+          location?: string | null
+          work_type: string
+          status?: string
+          applied_at?: string
+          next_action_at?: string | null
+          rejection_reason?: string | null
+          notes?: string | null
+          match_score?: number | null
+          created_at?: string
+          updated_at?: string
+          salary_min?: number | null
+          salary_max?: number | null
+          salary_currency?: string | null
+          salary_type?: string | null
+          salary_period?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          profile_id?: string
+          company_name?: string
+          industry?: string | null
+          job_url?: string
+          description?: string
+          location?: string | null
+          work_type?: string
+          status?: string
+          applied_at?: string
+          next_action_at?: string | null
+          rejection_reason?: string | null
+          notes?: string | null
+          match_score?: number | null
+          created_at?: string
+          updated_at?: string
+          salary_min?: number | null
+          salary_max?: number | null
+          salary_currency?: string | null
+          salary_type?: string | null
+          salary_period?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "job_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never

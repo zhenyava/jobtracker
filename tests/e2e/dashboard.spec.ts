@@ -1,28 +1,6 @@
-import { expect, test, type Page, type TestInfo } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { DEFAULT_DASHBOARD_TITLE } from '../../src/config/options'
-
-const DEFAULT_TEST_USER_EMAIL = 'test@example.com'
-const TEST_USER_PASSWORD = process.env.TEST_USER_PASSWORD || 'password123'
-
-function buildTestEmail(testInfo: TestInfo) {
-  const projectPart =
-    testInfo.project.name.replace(/[^a-z0-9]/gi, '').toLowerCase() || 'proj'
-  const workerPart = testInfo.workerIndex ?? 0
-  const base = process.env.TEST_USER_EMAIL || DEFAULT_TEST_USER_EMAIL
-  const [local, domain] = base.split('@')
-  return `${local}+${projectPart}-w${workerPart}@${domain || 'example.com'}`
-}
-
-async function signInTestUser(page: Page, email: string) {
-  const response = await page.request.post('/api/test-support/auth', {
-    data: {
-      email,
-      password: TEST_USER_PASSWORD,
-    },
-  })
-
-  expect(response.ok()).toBeTruthy()
-}
+import { buildTestEmail, signInTestUser } from './test-utils'
 
 test.describe('Dashboard', () => {
   let userEmail: string

@@ -2,6 +2,7 @@
 
 import { deleteApplication, JobApplication, updateApplicationIndustry, updateApplicationStatus } from '@/actions/application'
 import { EditableSelect } from '@/components/editable-select'
+import { SalaryEditPopover } from '@/components/salary-edit-popover'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -76,6 +77,7 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
                 <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[280px]">Company</th>
                 <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[200px]">Industry</th>
                 <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[180px]">Status</th>
+                <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[140px]">Salary</th>
                 <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[120px]">Work Type</th>
                 <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[120px]">Applied</th>
                 <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-right w-[80px]">URL</th>
@@ -113,6 +115,16 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
                       onUpdate={updateApplicationStatus.bind(null, app.id)}
                       placeholder="Select status"
                       className="min-w-[140px]"
+                    />
+                  </td>
+                  <td className="p-4 align-middle">
+                    <SalaryEditPopover
+                      id={app.id}
+                      initialMin={app.salary_min}
+                      initialMax={app.salary_max}
+                      initialCurrency={app.salary_currency}
+                      initialType={app.salary_type}
+                      initialPeriod={app.salary_period}
                     />
                   </td>
                   <td className="p-4 align-middle capitalize text-muted-foreground">
