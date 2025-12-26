@@ -4,9 +4,44 @@ import { ApplicationsTable } from '@/components/applications-table'
 import { CreateProfileDialog } from '@/components/create-profile-dialog'
 import { Button } from '@/components/ui/button'
 import { Briefcase } from 'lucide-react'
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import { DEFAULT_DASHBOARD_TITLE } from '@/config/options'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ profileId?: string }>
+}): Promise<Metadata> {
+  const { profileId } = await searchParams
+
+  if (!profileId) {
+    return {
+      title: DEFAULT_DASHBOARD_TITLE,
+    }
+  }
+
+  const profilesRes = await getJobProfiles()
+  if (!profilesRes.success || !profilesRes.data) {
+    return {
+      title: DEFAULT_DASHBOARD_TITLE,
+    }
+  }
+
+  const activeProfile = profilesRes.data.find(p => p.id === profileId)
+
+  if (activeProfile) {
+    return {
+      title: `Job Tracker - ${activeProfile.name}`,
+    }
+  }
+
+  return {
+    title: DEFAULT_DASHBOARD_TITLE,
+  }
+}
 
 export default async function DashboardPage({
   searchParams,

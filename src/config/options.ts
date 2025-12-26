@@ -1,5 +1,6 @@
 import { SelectOption } from "@/components/editable-select"
 
+export const DEFAULT_DASHBOARD_TITLE = 'Job Tracker - Dashboard'
 export const DEFAULT_STATUS = 'hr_screening'
 
 export const STATUS_OPTIONS: SelectOption[] = [

@@ -1,4 +1,5 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test'
+import { DEFAULT_DASHBOARD_TITLE } from '../../src/config/options'
 
 const DEFAULT_TEST_USER_EMAIL = 'test@example.com'
 const TEST_USER_PASSWORD = process.env.TEST_USER_PASSWORD || 'password123'
@@ -237,5 +238,35 @@ test.describe('Dashboard', () => {
     // Note: getByRole('link', { name: originalName }) might still match if newName contains originalName
     // so we chose distinct names.
     await expect(page.getByRole('link', { name: originalName })).not.toBeVisible()
+  })
+
+  test('updates page title with profile name', async ({ page }) => {
+    await signInTestUser(page, userEmail)
+
+    await page.goto('/dashboard')
+    
+    // Create a profile to ensure we have one
+    await page.getByRole('button', { name: 'Create Profile' }).click()
+    const profileName = `Metadata Test ${Date.now()}`
+    const dialog = page.getByRole('dialog')
+    await dialog.getByLabel('Profile Name').fill(profileName)
+    await dialog.getByRole('button', { name: 'Create Profile' }).click()
+
+    await page.waitForURL(/profileId=/)
+
+    // Check the title matches the profile name
+    await expect(page).toHaveTitle(`Job Tracker - ${profileName}`)
+  })
+
+  test('has correct homepage title', async ({ page }) => {
+    await page.goto('/')
+    await expect(page).toHaveTitle('Job Tracker')
+  })
+
+  test('has correct dashboard title when no profiles exist', async ({ page }) => {
+    await signInTestUser(page, userEmail)
+    await page.goto('/dashboard')
+    // We expect the zero state, so title should be the default dashboard title
+    await expect(page).toHaveTitle(DEFAULT_DASHBOARD_TITLE)
   })
 })
