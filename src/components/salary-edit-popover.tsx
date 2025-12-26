@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { formatSalary } from '@/lib/salary-utils'
 import { useState } from 'react'
 
@@ -44,6 +45,7 @@ export function SalaryEditPopover({
 
   const [min, setMin] = useState<string>(initialMin?.toString() || '')
   const [max, setMax] = useState<string>(initialMax?.toString() || '')
+  const [isRange, setIsRange] = useState(!!(initialMax && initialMin !== initialMax))
   const [currency, setCurrency] = useState<string>(initialCurrency || 'EUR')
   const [type, setType] = useState<string>(initialType || 'gross')
   const [period, setPeriod] = useState<string>(initialPeriod || 'year')
@@ -52,7 +54,7 @@ export function SalaryEditPopover({
     setLoading(true)
     try {
       const minVal = min ? parseFloat(min) : null
-      const maxVal = max ? parseFloat(max) : null
+      const maxVal = isRange && max ? parseFloat(max) : null
 
       const result = await updateApplicationSalary(id, {
         salary_min: minVal,
@@ -98,9 +100,18 @@ export function SalaryEditPopover({
           <DialogTitle>Edit Salary</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <Switch
+              id="range-mode"
+              checked={isRange}
+              onCheckedChange={setIsRange}
+            />
+            <Label htmlFor="range-mode">Range</Label>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="min">Min Amount</Label>
+            <div className={isRange ? 'grid gap-2' : 'grid gap-2 col-span-2'}>
+              <Label htmlFor="min">{isRange ? 'Min Amount' : 'Amount'}</Label>
               <Input
                 id="min"
                 type="number"
@@ -109,16 +120,18 @@ export function SalaryEditPopover({
                 placeholder="e.g. 50000"
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="max">Max Amount</Label>
-              <Input
-                id="max"
-                type="number"
-                value={max}
-                onChange={(e) => setMax(e.target.value)}
-                placeholder="Optional"
-              />
-            </div>
+            {isRange && (
+              <div className="grid gap-2">
+                <Label htmlFor="max">Max Amount</Label>
+                <Input
+                  id="max"
+                  type="number"
+                  value={max}
+                  onChange={(e) => setMax(e.target.value)}
+                  placeholder="e.g. 60000"
+                />
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-4">

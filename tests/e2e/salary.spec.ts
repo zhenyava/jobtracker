@@ -63,8 +63,8 @@ test.describe('Salary Management', () => {
     // Open edit popover
     await page.getByRole('cell', { name: 'Empty' }).click()
 
-    // Fill single value
-    await page.getByLabel('Min Amount').fill('65000')
+    // Fill single value (Default mode is single, label is 'Amount')
+    await page.getByLabel('Amount').fill('65000')
     await page.getByRole('button', { name: 'Save changes' }).click()
 
     // Verify display
@@ -90,6 +90,9 @@ test.describe('Salary Management', () => {
 
     // Open edit popover
     await page.getByRole('cell', { name: 'Empty' }).click()
+
+    // Enable Range Mode
+    await page.getByLabel('Range').click()
 
     // Fill range
     await page.getByLabel('Min Amount').fill('70000')
@@ -121,7 +124,7 @@ test.describe('Salary Management', () => {
     await page.getByRole('cell', { name: 'Empty' }).click()
 
     // Fill details
-    await page.getByLabel('Min Amount').fill('5000')
+    await page.getByLabel('Amount').fill('5000')
 
     // Change Currency to USD
     await page.getByRole('combobox').nth(0).click()
@@ -160,6 +163,8 @@ test.describe('Salary Management', () => {
 
     // 1. Set Range
     await page.getByRole('cell', { name: 'Empty' }).click()
+    // Enable range
+    await page.getByLabel('Range').click()
     await page.getByLabel('Min Amount').fill('50000')
     await page.getByLabel('Max Amount').fill('60000')
     await page.getByRole('button', { name: 'Save changes' }).click()
@@ -167,9 +172,10 @@ test.describe('Salary Management', () => {
     // Verify Range
     await expect(page.getByRole('cell', { name: '50000 - 60000 € gross year' })).toBeVisible()
 
-    // 2. Clear Max
+    // 2. Switch to Single
     await page.getByRole('cell', { name: '50000 - 60000 € gross year' }).click()
-    await page.getByLabel('Max Amount').fill('')
+    // Disable range (switch off)
+    await page.getByLabel('Range').click()
     await page.getByRole('button', { name: 'Save changes' }).click()
 
     // Verify Single (Max should be gone)
