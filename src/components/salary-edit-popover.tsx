@@ -51,8 +51,8 @@ export function SalaryEditPopover({
   const handleSave = async () => {
     setLoading(true)
     try {
-      const minVal = min ? parseFloat(min) : undefined
-      const maxVal = max ? parseFloat(max) : undefined
+      const minVal = min ? parseFloat(min) : null
+      const maxVal = max ? parseFloat(max) : null
 
       const result = await updateApplicationSalary(id, {
         salary_min: minVal,

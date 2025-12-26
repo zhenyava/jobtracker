@@ -140,4 +140,39 @@ test.describe('Salary Management', () => {
     // Verify display: 5000 $ net month
     await expect(page.getByRole('cell', { name: '5000 $ net month' })).toBeVisible()
   })
+
+  test('should clear max amount when switching from range to single', async ({ page }) => {
+    // Create application
+    const url = new URL(page.url())
+    const profileId = url.searchParams.get('profileId')
+
+    await page.request.post('/api/applications', {
+      data: {
+        profileId,
+        companyName: 'Range To Single',
+        jobUrl: 'https://example.com/job',
+        description: 'Desc',
+        workType: 'remote'
+      }
+    })
+
+    await page.reload()
+
+    // 1. Set Range
+    await page.getByRole('cell', { name: 'Empty' }).click()
+    await page.getByLabel('Min Amount').fill('50000')
+    await page.getByLabel('Max Amount').fill('60000')
+    await page.getByRole('button', { name: 'Save changes' }).click()
+
+    // Verify Range
+    await expect(page.getByRole('cell', { name: '50000 - 60000 € gross year' })).toBeVisible()
+
+    // 2. Clear Max
+    await page.getByRole('cell', { name: '50000 - 60000 € gross year' }).click()
+    await page.getByLabel('Max Amount').fill('')
+    await page.getByRole('button', { name: 'Save changes' }).click()
+
+    // Verify Single (Max should be gone)
+    await expect(page.getByRole('cell', { name: '50000 € gross year' })).toBeVisible()
+  })
 })

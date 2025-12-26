@@ -14,11 +14,11 @@ export interface JobApplication {
   industry?: string
   match_score?: number
   profile_id: string
-  salary_min?: number
-  salary_max?: number
-  salary_currency?: string
-  salary_type?: string
-  salary_period?: string
+  salary_min?: number | null
+  salary_max?: number | null
+  salary_currency?: string | null
+  salary_type?: string | null
+  salary_period?: string | null
 }
 
 async function getAuthenticatedClient() {
@@ -96,11 +96,11 @@ export async function updateApplicationIndustry(id: string, industry: string) {
 export async function updateApplicationSalary(
   id: string,
   salary: {
-    salary_min?: number
-    salary_max?: number
-    salary_currency?: string
-    salary_type?: string
-    salary_period?: string
+    salary_min?: number | null
+    salary_max?: number | null
+    salary_currency?: string | null
+    salary_type?: string | null
+    salary_period?: string | null
   }
 ) {
   return updateApplication(id, salary)
