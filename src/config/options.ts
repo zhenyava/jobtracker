@@ -27,8 +27,8 @@ export const INDUSTRY_OPTIONS: string[] = [
 ]
 
 export const CURRENCY_OPTIONS = [
-  { value: 'EUR', label: 'EUR (€)' },
-  { value: 'USD', label: 'USD ($)' },
+  { value: 'EUR', label: 'EUR (€)', symbol: '€' },
+  { value: 'USD', label: 'USD ($)', symbol: '$' },
 ]
 
 export const SALARY_TYPE_OPTIONS = [

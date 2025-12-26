@@ -1,3 +1,5 @@
+import { CURRENCY_OPTIONS } from '@/config/options'
+
 export function formatSalary(
   min: number | null | undefined,
   max: number | null | undefined,
@@ -9,12 +11,8 @@ export function formatSalary(
     return 'Empty'
   }
 
-  const CURRENCY_SYMBOLS: Record<string, string> = {
-    EUR: '€',
-    USD: '$',
-  }
-
-  const currencySymbol = currency ? (CURRENCY_SYMBOLS[currency] || currency) : ''
+  const currencyOption = CURRENCY_OPTIONS.find(opt => opt.value === currency)
+  const currencySymbol = currencyOption ? currencyOption.symbol : (currency || '')
   const periodText = period || ''
   const typeText = type || ''
 
