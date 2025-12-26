@@ -22,3 +22,13 @@ export async function signInTestUser(page: Page, email: string) {
 
   expect(response.ok()).toBeTruthy()
 }
+
+export async function createProfile(page: Page, namePrefix: string) {
+  await page.getByRole('button', { name: 'Create Profile' }).click()
+  const profileName = `${namePrefix} ${Date.now()}`
+  const dialog = page.getByRole('dialog')
+  await dialog.getByLabel('Profile Name').fill(profileName)
+  await dialog.getByRole('button', { name: 'Create Profile' }).click()
+  await page.waitForURL(/profileId=/)
+  return profileName
+}

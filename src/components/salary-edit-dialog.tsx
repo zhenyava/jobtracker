@@ -51,15 +51,23 @@ export function SalaryEditDialog({
   const [type, setType] = useState<string>(initialType || 'gross')
   const [period, setPeriod] = useState<string>(initialPeriod || 'year')
 
+  const isInteger = (val: string) => /^\d+$/.test(val)
+
+  const minError = min && !isInteger(min)
+  const maxError = isRange && max && !isInteger(max)
+  const hasError = minError || maxError
+
   const handleSave = async () => {
+    if (hasError) return
+
     setLoading(true)
     try {
-      const minNum = parseFloat(min)
+      const minNum = parseInt(min, 10)
       const minVal = !isNaN(minNum) ? minNum : null
 
       let maxVal = null
       if (isRange && max) {
-        const maxNum = parseFloat(max)
+        const maxNum = parseInt(max, 10)
         maxVal = !isNaN(maxNum) ? maxNum : null
       }
 
@@ -125,7 +133,9 @@ export function SalaryEditDialog({
                 value={min}
                 onChange={(e) => setMin(e.target.value)}
                 placeholder="e.g. 50000"
+                className={minError ? 'border-red-500 focus-visible:ring-red-500' : ''}
               />
+              {minError && <span className="text-xs text-red-500">Integers only</span>}
             </div>
             {isRange && (
               <div className="grid gap-2">
@@ -136,7 +146,9 @@ export function SalaryEditDialog({
                   value={max}
                   onChange={(e) => setMax(e.target.value)}
                   placeholder="e.g. 60000"
+                  className={maxError ? 'border-red-500 focus-visible:ring-red-500' : ''}
                 />
+                {maxError && <span className="text-xs text-red-500">Integers only</span>}
               </div>
             )}
           </div>
@@ -193,7 +205,7 @@ export function SalaryEditDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={loading}>
+          <Button onClick={handleSave} disabled={loading || !!hasError}>
             {loading ? 'Saving...' : 'Save changes'}
           </Button>
         </DialogFooter>

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { buildTestEmail, signInTestUser } from './test-utils'
+import { buildTestEmail, createProfile, signInTestUser } from './test-utils'
 
 test.describe('Salary Management', () => {
   let userEmail: string
@@ -13,11 +13,7 @@ test.describe('Salary Management', () => {
     await page.goto('/dashboard')
 
     // Create a new profile for each test to ensure clean state
-    await page.getByRole('button', { name: 'Create Profile' }).click()
-    const profileName = `Salary Test ${Date.now()}`
-    await page.getByRole('dialog').getByLabel('Profile Name').fill(profileName)
-    await page.getByRole('dialog').getByRole('button', { name: 'Create Profile' }).click()
-    await page.waitForURL(/profileId=/)
+    await createProfile(page, 'Salary Test')
   })
 
   test('should display Empty when salary is not set', async ({ page }) => {
