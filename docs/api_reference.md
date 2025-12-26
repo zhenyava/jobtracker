@@ -29,3 +29,4 @@
 | `getJobProfiles` | Fetches all profiles for the current user. | `void` | `{ success, data: Profile[] }` |
 | `updateApplicationStatus` | Updates the status of a job application. | `id: string, status: string` | `{ success, error? }` |
 | `updateApplicationIndustry` | Updates the industry of a job application. | `id: string, industry: string` | `{ success, error? }` |
+| `updateApplicationSalary` | Updates salary details for a job application. | `id: string, salary: { min?, max?, currency?, type?, period? }` | `{ success, error? }` |
