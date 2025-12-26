@@ -12,20 +12,21 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: { profileId?: string }
+  searchParams: Promise<{ profileId?: string }>
 }): Promise<Metadata> {
-  const profileId = searchParams.profileId
+  const { profileId } = await searchParams
+  const defaultTitle = 'Job Tracker - Dashboard'
 
   if (!profileId) {
     return {
-      title: 'Job Tracker - Dashboard',
+      title: defaultTitle,
     }
   }
 
   const profilesRes = await getJobProfiles()
   if (!profilesRes.success || !profilesRes.data) {
     return {
-      title: 'Job Tracker - Dashboard',
+      title: defaultTitle,
     }
   }
 
@@ -38,7 +39,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: 'Job Tracker - Dashboard',
+    title: defaultTitle,
   }
 }
 
