@@ -25,3 +25,18 @@ export const INDUSTRY_OPTIONS: string[] = [
   'Blockchain / Web3',
   'Other',
 ]
+
+export const CURRENCY_OPTIONS = [
+  { value: 'EUR', label: 'EUR (€)', symbol: '€' },
+  { value: 'USD', label: 'USD ($)', symbol: '$' },
+]
+
+export const SALARY_TYPE_OPTIONS = [
+  { value: 'gross', label: 'Gross' },
+  { value: 'net', label: 'Net' },
+]
+
+export const SALARY_PERIOD_OPTIONS = [
+  { value: 'year', label: 'Year' },
+  { value: 'month', label: 'Month' },
+]

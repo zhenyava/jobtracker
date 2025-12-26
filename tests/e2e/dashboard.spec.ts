@@ -1,28 +1,6 @@
-import { expect, test, type Page, type TestInfo } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { DEFAULT_DASHBOARD_TITLE } from '../../src/config/options'
-
-const DEFAULT_TEST_USER_EMAIL = 'test@example.com'
-const TEST_USER_PASSWORD = process.env.TEST_USER_PASSWORD || 'password123'
-
-function buildTestEmail(testInfo: TestInfo) {
-  const projectPart =
-    testInfo.project.name.replace(/[^a-z0-9]/gi, '').toLowerCase() || 'proj'
-  const workerPart = testInfo.workerIndex ?? 0
-  const base = process.env.TEST_USER_EMAIL || DEFAULT_TEST_USER_EMAIL
-  const [local, domain] = base.split('@')
-  return `${local}+${projectPart}-w${workerPart}@${domain || 'example.com'}`
-}
-
-async function signInTestUser(page: Page, email: string) {
-  const response = await page.request.post('/api/test-support/auth', {
-    data: {
-      email,
-      password: TEST_USER_PASSWORD,
-    },
-  })
-
-  expect(response.ok()).toBeTruthy()
-}
+import { buildTestEmail, createProfile, signInTestUser } from './test-utils'
 
 test.describe('Dashboard', () => {
   let userEmail: string
@@ -54,15 +32,7 @@ test.describe('Dashboard', () => {
     await signInTestUser(page, userEmail)
 
     await page.goto('/dashboard')
-    await page.getByRole('button', { name: 'Create Profile' }).click()
-
-    const profileName = `Frontend ${Date.now()}`
-    const dialog = page.getByRole('dialog')
-
-    await dialog.getByLabel('Profile Name').fill(profileName)
-    await dialog.getByRole('button', { name: 'Create Profile' }).click()
-
-    await page.waitForURL(/profileId=/)
+    const profileName = await createProfile(page, 'Frontend')
 
     await expect(
       page.getByRole('heading', { level: 1, name: profileName }),
@@ -92,11 +62,7 @@ test.describe('Dashboard', () => {
     await signInTestUser(page, userEmail)
 
     await page.goto('/dashboard')
-    await page.getByRole('button', { name: 'Create Profile' }).click()
-    const profileName = `Empty State ${Date.now()}`
-    await page.getByRole('dialog').getByLabel('Profile Name').fill(profileName)
-    await page.getByRole('dialog').getByRole('button', { name: 'Create Profile' }).click()
-    await page.waitForURL(/profileId=/)
+    await createProfile(page, 'Empty State')
 
     await expect(page.getByText('No applications for this profile yet')).toBeVisible()
     await expect(page.getByText('Total Applications')).toBeVisible()
@@ -107,11 +73,7 @@ test.describe('Dashboard', () => {
     await signInTestUser(page, userEmail)
 
     await page.goto('/dashboard')
-    await page.getByRole('button', { name: 'Create Profile' }).click()
-    const profileName = `List Test ${Date.now()}`
-    await page.getByRole('dialog').getByLabel('Profile Name').fill(profileName)
-    await page.getByRole('dialog').getByRole('button', { name: 'Create Profile' }).click()
-    await page.waitForURL(/profileId=/)
+    await createProfile(page, 'List Test')
 
     const url = new URL(page.url())
     const profileId = url.searchParams.get('profileId')
@@ -147,11 +109,7 @@ test.describe('Dashboard', () => {
 
     // 2. Go to dashboard and create profile
     await page.goto('/dashboard')
-    await page.getByRole('button', { name: 'Create Profile' }).click()
-    const profileName = `Delete Test ${Date.now()}`
-    await page.getByRole('dialog').getByLabel('Profile Name').fill(profileName)
-    await page.getByRole('dialog').getByRole('button', { name: 'Create Profile' }).click()
-    await page.waitForURL(/profileId=/)
+    await createProfile(page, 'Delete Test')
 
     const url = new URL(page.url())
     const profileId = url.searchParams.get('profileId')
@@ -197,14 +155,8 @@ test.describe('Dashboard', () => {
     await signInTestUser(page, userEmail)
 
     await page.goto('/dashboard')
-    await page.getByRole('button', { name: 'Create Profile' }).click()
+    const originalName = await createProfile(page, 'To Rename')
 
-    const originalName = `To Rename ${Date.now()}`
-    const dialog = page.getByRole('dialog')
-    await dialog.getByLabel('Profile Name').fill(originalName)
-    await dialog.getByRole('button', { name: 'Create Profile' }).click()
-
-    await page.waitForURL(/profileId=/)
     await expect(page.getByRole('heading', { level: 1, name: originalName })).toBeVisible()
 
     // Find the sidebar item container that matches the profile name
@@ -246,13 +198,7 @@ test.describe('Dashboard', () => {
     await page.goto('/dashboard')
     
     // Create a profile to ensure we have one
-    await page.getByRole('button', { name: 'Create Profile' }).click()
-    const profileName = `Metadata Test ${Date.now()}`
-    const dialog = page.getByRole('dialog')
-    await dialog.getByLabel('Profile Name').fill(profileName)
-    await dialog.getByRole('button', { name: 'Create Profile' }).click()
-
-    await page.waitForURL(/profileId=/)
+    const profileName = await createProfile(page, 'Metadata Test')
 
     // Check the title matches the profile name
     await expect(page).toHaveTitle(`Job Tracker - ${profileName}`)
