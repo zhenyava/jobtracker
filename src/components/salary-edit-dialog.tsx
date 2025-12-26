@@ -1,6 +1,7 @@
 'use client'
 
 import { updateApplicationSalary } from '@/actions/application'
+import { CURRENCY_OPTIONS, SALARY_PERIOD_OPTIONS, SALARY_TYPE_OPTIONS } from '@/config/options'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -23,7 +24,7 @@ import { Switch } from '@/components/ui/switch'
 import { formatSalary } from '@/lib/salary-utils'
 import { useState } from 'react'
 
-interface SalaryEditPopoverProps {
+interface SalaryEditDialogProps {
   id: string
   initialMin?: number | null
   initialMax?: number | null
@@ -32,14 +33,14 @@ interface SalaryEditPopoverProps {
   initialPeriod?: string | null
 }
 
-export function SalaryEditPopover({
+export function SalaryEditDialog({
   id,
   initialMin,
   initialMax,
   initialCurrency,
   initialType,
   initialPeriod,
-}: SalaryEditPopoverProps) {
+}: SalaryEditDialogProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -53,8 +54,14 @@ export function SalaryEditPopover({
   const handleSave = async () => {
     setLoading(true)
     try {
-      const minVal = min ? parseFloat(min) : null
-      const maxVal = isRange && max ? parseFloat(max) : null
+      const minNum = parseFloat(min)
+      const minVal = !isNaN(minNum) ? minNum : null
+
+      let maxVal = null
+      if (isRange && max) {
+        const maxNum = parseFloat(max)
+        maxVal = !isNaN(maxNum) ? maxNum : null
+      }
 
       const result = await updateApplicationSalary(id, {
         salary_min: minVal,
@@ -136,40 +143,49 @@ export function SalaryEditPopover({
 
           <div className="grid grid-cols-3 gap-4">
             <div className="grid gap-2">
-              <Label>Currency</Label>
+              <Label htmlFor="salary-currency">Currency</Label>
               <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger>
+                <SelectTrigger id="salary-currency">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="EUR">EUR (€)</SelectItem>
-                  <SelectItem value="USD">USD ($)</SelectItem>
+                  {CURRENCY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid gap-2">
-              <Label>Type</Label>
+              <Label htmlFor="salary-type">Type</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger>
+                <SelectTrigger id="salary-type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="gross">Gross</SelectItem>
-                  <SelectItem value="net">Net</SelectItem>
+                  {SALARY_TYPE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid gap-2">
-              <Label>Period</Label>
+              <Label htmlFor="salary-period">Period</Label>
               <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger>
+                <SelectTrigger id="salary-period">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="year">Year</SelectItem>
-                  <SelectItem value="month">Month</SelectItem>
+                  {SALARY_PERIOD_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

@@ -2,7 +2,7 @@
 
 import { deleteApplication, JobApplication, updateApplicationIndustry, updateApplicationStatus } from '@/actions/application'
 import { EditableSelect } from '@/components/editable-select'
-import { SalaryEditPopover } from '@/components/salary-edit-popover'
+import { SalaryEditDialog } from '@/components/salary-edit-dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -118,7 +118,7 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
                     />
                   </td>
                   <td className="p-4 align-middle">
-                    <SalaryEditPopover
+                    <SalaryEditDialog
                       id={app.id}
                       initialMin={app.salary_min}
                       initialMax={app.salary_max}

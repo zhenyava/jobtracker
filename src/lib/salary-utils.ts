@@ -9,7 +9,12 @@ export function formatSalary(
     return 'Empty'
   }
 
-  const currencySymbol = currency === 'EUR' ? '€' : currency === 'USD' ? '$' : currency || ''
+  const CURRENCY_SYMBOLS: Record<string, string> = {
+    EUR: '€',
+    USD: '$',
+  }
+
+  const currencySymbol = currency ? (CURRENCY_SYMBOLS[currency] || currency) : ''
   const periodText = period || ''
   const typeText = type || ''
 

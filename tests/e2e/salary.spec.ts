@@ -127,15 +127,15 @@ test.describe('Salary Management', () => {
     await page.getByLabel('Amount').fill('5000')
 
     // Change Currency to USD
-    await page.getByRole('combobox').nth(0).click()
+    await page.getByLabel('Currency').click()
     await page.getByRole('option', { name: 'USD ($)' }).click()
 
     // Change Type to Net
-    await page.getByRole('combobox').nth(1).click()
+    await page.getByLabel('Type').click()
     await page.getByRole('option', { name: 'Net' }).click()
 
     // Change Period to Month
-    await page.getByRole('combobox').nth(2).click()
+    await page.getByLabel('Period').click()
     await page.getByRole('option', { name: 'Month' }).click()
 
     await page.getByRole('button', { name: 'Save changes' }).click()

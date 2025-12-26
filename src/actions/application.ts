@@ -95,13 +95,7 @@ export async function updateApplicationIndustry(id: string, industry: string) {
 
 export async function updateApplicationSalary(
   id: string,
-  salary: {
-    salary_min?: number | null
-    salary_max?: number | null
-    salary_currency?: string | null
-    salary_type?: string | null
-    salary_period?: string | null
-  }
+  salary: Partial<Pick<JobApplication, 'salary_min' | 'salary_max' | 'salary_currency' | 'salary_type' | 'salary_period'>>
 ) {
   return updateApplication(id, salary)
 }
