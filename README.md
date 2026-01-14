@@ -1,4 +1,4 @@
-# Job Tracker SaaS
+# Job Tracker
 
 > **Documentation:** Detailed project documentation (Tech Stack, API, Standards) is in the `docs/` folder.
 
