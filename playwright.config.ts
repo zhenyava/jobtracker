@@ -30,6 +30,7 @@ export default defineConfig({
     env: {
       ...process.env,
       E2E_TESTING: process.env.E2E_TESTING || 'true',
+      NEXT_PUBLIC_E2E_TESTING: 'true',
       NEXT_PUBLIC_SUPABASE_URL:
         process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321',
       NEXT_PUBLIC_SUPABASE_ANON_KEY:
